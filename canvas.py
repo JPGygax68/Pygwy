@@ -10,8 +10,9 @@ from pyrr import Quaternion, Matrix44, Vector3
 thisdir = os.path.dirname(os.path.realpath(__file__))
 
 # Two triangles to form a rectangle, size 1x1
-RECTANGLE_VERTICES = [ 0, 0, 1, 0, 1, 1,   1,1, 0, 1, 0, 0]
-RECTANGLE_VERTICES = numpy.array(RECTANGLE_VERTICES, dtype=numpy.float32)
+RECTANGLE_VERTICES = [ 0,0, 1,0, 1,1,   1,1, 0,1, 0,0]
+#RECTANGLE_VERTICES = numpy.array(RECTANGLE_VERTICES, dtype=numpy.float32)
+RECTANGLE_VERTICES = arrays.ArrayDatatype.asArray(RECTANGLE_VERTICES, typeCode = GL_FLOAT)
 
 class _FontHandle:
     """Represents a RasterizedFont processed for use by the canvas."""
@@ -148,13 +149,15 @@ class Canvas:
         """Draw a filled (borderless) rectangle. The color must be specified as an (R,G,B,A) tuple."""
         
         glUniform1i(self.uniforms.get("render_mode"), 1)
-        matrix = Matrix44.identity()
-        matrix = Matrix44.from_translation(Vector3([x, y, 0])) * matrix
+        #matrix = Matrix44.identity()
+        matrix = Matrix44.from_translation(Vector3([x, y, 0])) #* matrix
         matrix = Matrix44.from_scale(Vector3([w, h, 1])) * matrix
         matrix = numpy.array(matrix, numpy.float32)
+        #matrix = arrays.ArrayDatatype.asArray(matrix, GL_FLOAT)
         #print("matrix: {}".format(matrix))
         glUniformMatrix4fv(self.uniforms.get('transform'), 1, False, matrix)
         color = numpy.array(color, numpy.float32)
+        #color = arrays.ArrayDatatype.asArray(color, GL_FLOAT)
         #print("color: {}".format(color))
         glUniform4fv(self.uniforms.get('color'), 1, color)
         glBindVertexArray(self.rectangle_vao)
