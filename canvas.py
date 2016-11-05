@@ -223,13 +223,20 @@ class Canvas:
         return Canvas.Clipper(self, x, y, w, h)
         
     def __enter__(self):
-        # TODO: make this overridable, as it can be expensive
-        #print("saving OpenGL state")
+        
+        # TODO: make state saving/restoring overridable/customizable, as it can be expensive
+        
+        # State that cannot be save via PushAttrib
         self.saved_state = {
             'program': glGetInteger(GL_CURRENT_PROGRAM),
-            'depth_test': glGetBoolean(GL_DEPTH_TEST)
         }
+        
+        # https://www.opengl.org/sdk/docs/man2/xhtml/glPushAttrib.xml
+        glPushAttrib(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
         glDisable(GL_DEPTH_TEST)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_BLEND)
+        
         glUseProgram(self.program)
         #print("Uniforms: {}".format(self.uniforms))
         glUniform1i(self.uniforms.get('vp_width'), self.extents[0])
@@ -239,7 +246,7 @@ class Canvas:
         glUniform1i(self.uniforms.get('glyph_descriptors'), 1) # texture unit 1 for glyph descriptors
         
     def __exit__(self, type, value, traceback):
-        #print("restoring OpenGL state")
+
+        glPopAttrib()
         glUseProgram(self.saved_state["program"])
-        if self.saved_state["depth_test"]: glEnable(GL_DEPTH_TEST)
-        # TODO
+        #if self.saved_state["depth_test"]: glEnable(GL_DEPTH_TEST)
