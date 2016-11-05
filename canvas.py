@@ -68,7 +68,7 @@ class Canvas:
         glDeleteShader(vertex_shader)
         glDeleteShader(fragment_shader)
         if glGetProgramiv(self.program, GL_LINK_STATUS) != GL_TRUE:
-            raise SystemError("GUI: error: {0}".format(glGetProgramInfoLog(self.program)))
+            raise SystemError("Pygwy: failed to get shader program info log: {0}".format(glGetProgramInfoLog(self.program)))
         
         # Obtain the locations of the uniforms
         uniforms = ["vp_width", "vp_height", "render_mode", "transform", "color", "point_size", "font_pixels", "glyph_descriptors"]
@@ -195,18 +195,18 @@ class Canvas:
         indices = numpy.array(indices, numpy.uint)
         glBindBuffer(GL_ARRAY_BUFFER, self.text_glyphindex_buf)
         glBufferData(GL_ARRAY_BUFFER, indices.nbytes, indices, GL_DYNAMIC_DRAW)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
 
         # Draw the glyphs as point sprites
-        glUniform1i(self.uniforms.get('render_mode'), 3)
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_BUFFER, fhandle.texture)
         glActiveTexture(GL_TEXTURE1)
-        #print("glyphrecs_tex: {}".format(font.get('glyphrecs_tex')))
         glBindTexture(GL_TEXTURE_BUFFER, fhandle.glyphrecs_tex)
         glActiveTexture(GL_TEXTURE0)
         glBindVertexArray(self.text_vao)
         glEnableVertexAttribArray(self.attributes.get('vertex_position'))
         glEnableVertexAttribArray(self.attributes.get('glyph_index'))
+        glUniform1i(self.uniforms.get('render_mode'), 3)
         glEnable(GL_POINT_SPRITE)
         point_size = 2 * font.pixel_size # twice the pixel size, just to be sure 
         # TODO: enable GL_PROGRAM_POINT_SIZE and set this from the vertex shader ?
@@ -216,7 +216,7 @@ class Canvas:
         glUniform4fv(self.uniforms.get('color'), 1, color)
         glDrawArrays(GL_POINTS, 0, len(indices))
             
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        #glBindBuffer(GL_ARRAY_BUFFER, 0)
         glBindVertexArray(0)
         
     def clip(self, x, y, w, h):
