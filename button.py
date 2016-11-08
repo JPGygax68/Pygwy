@@ -1,6 +1,7 @@
 from . widget import Widget
+from . clickable import Clickable
 
-class Button(Widget):
+class Button(Clickable, Widget):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -34,7 +35,11 @@ class Button(Widget):
     def caption_color(self, color):
         # TODO: check data type and convert to numpy.array() ?
         self._cap_clr = array(color, dtype=float32)
-        
+             
+    #def handle_event(self, event, offset):
+    #    #print("Button.handle_event()")
+    #    return super().handle_event(event, offset)
+
     def draw(self, canvas, offset):
         x = offset[0] + self.position[0]
         y = offset[1] + self.position[1]

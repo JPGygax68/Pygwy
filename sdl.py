@@ -21,14 +21,27 @@ class MouseMotionWrapper(MouseWrapper, MouseMotionEvent):
     pass
     
 class MouseButtonWrapper(MouseWrapper, MouseButtonEvent):
-    pass
+
+    #def __init__(self, event):
+    #    super().__init__(event)
+    #    print("MouseButtonWrapper")
+        
+    @property
+    def button(self): return self.event.button.button
+        
+    @property
+    def clicks(self): return self.event.button.clicks
     
 _wrapper_map = {
     sdl2.SDL_KEYDOWN: KeyboardWrapper,
     sdl2.SDL_KEYUP: KeyboardWrapper,
     sdl2.SDL_MOUSEMOTION: MouseMotionWrapper,
+    sdl2.SDL_MOUSEBUTTONDOWN: MouseButtonWrapper,
+    sdl2.SDL_MOUSEBUTTONUP: MouseButtonWrapper,
 }    
 
 def wrap_event(event):
-    return _wrapper_map.get(event.type, EventWrapper)(event)
+    wrapper = _wrapper_map.get(event.type, EventWrapper)
+    #print("wrapper: {}", wrapper)
+    return wrapper(event)
     

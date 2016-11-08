@@ -16,5 +16,12 @@ class MouseMotionEvent(MouseEvent):
     pass
     
 class MouseButtonEvent(MouseEvent):
-    # TODO
-    pass
+
+    @property
+    def button(self):
+        raise NotImplementedError("MouseButtonEvent.button")
+        
+    @property
+    def clicks(self):
+        raise NotImplementedError("MouseButtonEvent.clicks")
+    
