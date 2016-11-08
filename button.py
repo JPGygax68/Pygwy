@@ -3,11 +3,11 @@ from . clickable import Clickable
 
 class Button(Clickable, Widget):
 
-    def __init__(self, **kwargs):
+    def __init__(self, caption = "Button", **kwargs):
         super().__init__(**kwargs)
         #self._cap_clr = (0, 0, 0, 1)
         #self._face_clr_ = (0.5, 0.5, 0.5, 1)
-        self._caption = "Button"
+        self._caption = caption
         
     def layout(self):
         cbox = self.font.compute_control_box(self._caption)
