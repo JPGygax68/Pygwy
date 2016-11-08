@@ -18,10 +18,10 @@ class MouseMotionEvent(MouseEvent):
 class MouseButtonEvent(MouseEvent):
 
     @property
-    def button(self):
-        raise NotImplementedError("MouseButtonEvent.button")
+    def button(self): raise NotImplementedError("MouseButtonEvent.button")
         
     @property
-    def clicks(self):
-        raise NotImplementedError("MouseButtonEvent.clicks")
+    def clicks(self): raise NotImplementedError("MouseButtonEvent.clicks")
     
+    @property
+    def state_is_released(self): raise NotImplementedError("MouseButtonEvent.state_is_released")

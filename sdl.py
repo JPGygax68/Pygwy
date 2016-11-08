@@ -32,6 +32,10 @@ class MouseButtonWrapper(MouseWrapper, MouseButtonEvent):
     @property
     def clicks(self): return self.event.button.clicks
     
+    @property
+    def state_is_released(self): return self.event.button.state == sdl2.SDL_RELEASED
+
+    
 _wrapper_map = {
     sdl2.SDL_KEYDOWN: KeyboardWrapper,
     sdl2.SDL_KEYUP: KeyboardWrapper,
