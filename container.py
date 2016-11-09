@@ -10,6 +10,10 @@ class Container(Widget):
         self._children.append(child)
         child.set_parent(self)
         
+    def init_graphics(self, canvas):
+        for child in self._children:
+            child.init_graphics(canvas)
+            
     def handle_event(self, event, offset):
         """Sends the event to the children, after adding the container's position to the specified offset.
         (This is done so that a widget can more easily compare its own rectangle with the pointer position

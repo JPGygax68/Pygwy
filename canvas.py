@@ -19,7 +19,8 @@ class _FontHandle:
     pass
     
 class Canvas:
-
+    """OpenGL implementation of the Pygwy Canvas concept."""
+    
     class Clipper:
     
         def __init__(self, canvas, x, y, w, h):
@@ -46,6 +47,7 @@ class Canvas:
                 glScissor(cl._x, self._canvas.extents[1] - cl._y, cl._w, cl._h)
             
     def __init__(self):
+        self._font_cache = {}
         self._clipper_stack = []
         
     def init(self):
@@ -104,7 +106,7 @@ class Canvas:
         #print("Point size range: {}".format(glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE)))
         
     def cleanup():
-        # TODO
+        # TODO: release font resources
         pass
         
     def set_extents(self, w, *h):
@@ -118,31 +120,38 @@ class Canvas:
         Note: the canvas need not necessarily be "entered" (using the "with" statement) for register_font() 
         to work, however the OpenGL context associated with this canvas must be active."""
 
-        # TODO: look the font up in a "registry" to avoid registering the same font more than once
+        handle = self._font_cache.get(font, None)
         
-        handle = _FontHandle()
-        handle.font = font
-        
-        # Upload data for default font
-        # Upload bitmap for default font as buffer object, and bind that to a texture object
-        handle.bitmap_buf = glGenBuffers(1)
-        glBindBuffer(GL_TEXTURE_BUFFER, handle.bitmap_buf)
-        glBufferStorage(GL_TEXTURE_BUFFER, len(font.pixel_buffer), font.pixel_buffer, 0)
-        handle.texture = glGenTextures(1)
-        glBindTexture(GL_TEXTURE_BUFFER, handle.texture)
-        glTexBuffer(GL_TEXTURE_BUFFER, GL_R8, handle.bitmap_buf)
-        glBindTexture(GL_TEXTURE_BUFFER, 0)
-        
-        # Do the same for the glyph records
-        handle.glyphrecs_buf = glGenBuffers(1)
-        glBindBuffer(GL_TEXTURE_BUFFER, handle.glyphrecs_buf)
-        glBufferStorage(GL_TEXTURE_BUFFER, font.glyph_recs.nbytes, font.glyph_recs, 0)
-        handle.glyphrecs_tex = glGenTextures(1)
-        glBindTexture(GL_TEXTURE_BUFFER, handle.glyphrecs_tex)
-        glTexBuffer(GL_TEXTURE_BUFFER, GL_R16I, handle.glyphrecs_buf)
-        glBindBuffer(GL_TEXTURE_BUFFER, 0)
-        glBindTexture(GL_TEXTURE_BUFFER, 0)
-        
+        if handle:
+            return handle
+            
+        else:
+            handle = _FontHandle()
+            handle.font = font
+            
+            # Upload data for default font
+            # Upload bitmap for default font as buffer object, and bind that to a texture object
+            handle.bitmap_buf = glGenBuffers(1)
+            glBindBuffer(GL_TEXTURE_BUFFER, handle.bitmap_buf)
+            glBufferStorage(GL_TEXTURE_BUFFER, len(font.pixel_buffer), font.pixel_buffer, 0)
+            handle.texture = glGenTextures(1)
+            glBindTexture(GL_TEXTURE_BUFFER, handle.texture)
+            glTexBuffer(GL_TEXTURE_BUFFER, GL_R8, handle.bitmap_buf)
+            glBindTexture(GL_TEXTURE_BUFFER, 0)
+            
+            # Do the same for the glyph records
+            handle.glyphrecs_buf = glGenBuffers(1)
+            glBindBuffer(GL_TEXTURE_BUFFER, handle.glyphrecs_buf)
+            glBufferStorage(GL_TEXTURE_BUFFER, font.glyph_recs.nbytes, font.glyph_recs, 0)
+            handle.glyphrecs_tex = glGenTextures(1)
+            glBindTexture(GL_TEXTURE_BUFFER, handle.glyphrecs_tex)
+            glTexBuffer(GL_TEXTURE_BUFFER, GL_R16I, handle.glyphrecs_buf)
+            glBindBuffer(GL_TEXTURE_BUFFER, 0)
+            glBindTexture(GL_TEXTURE_BUFFER, 0)
+            
+            # Store handle in cache
+            self._font_cache[font] = handle
+            
         return handle
         
     def rectangle(self, x, y, w, h, color):

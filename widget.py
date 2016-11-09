@@ -4,9 +4,11 @@ from . eventemitter import *
 
 class Widget:
     
-    def __init__(self, **kwargs):
+    def __init__(self, font = None, **kwargs):
+        if font: print("Widget.__init__(): font: {}".format(font.glyph_index))
         self._pos = (0, 0)
         self._ext = (0, 0)
+        self._font = font
         self._hovered = False
         # Subscribable events
         self._mouseenter = EventEmitter()
@@ -41,9 +43,15 @@ class Widget:
     def root_widget(self):
         return self._parent.root_widget
         
+    # TODO: the font property actually belongs in an aspect
+    
     @property
     def font(self):
-        return self.root_widget.default_font
+        return self._font if self._font else self.root_widget.default_font
+        
+    @font.setter
+    def font(self, fnt):
+        self._font = fnt
         
     # Dynamic state
     @property
@@ -52,7 +60,7 @@ class Widget:
     # TODO: make this obsolete by providing a fast RasterizedFont -> FontHandle lookup ?
     @property 
     def fonthandle(self):
-        return self.root_widget.default_font_handle
+        return self._fonthandle
         
     def layout(self):
         raise NotImplementedError("Widget descendents MUST implement the layout method!")
@@ -69,6 +77,10 @@ class Widget:
                 if self.hovered:
                     self._do_mouseleave()
     
+    def init_graphics(self,canvas):
+        # FIXME: move this to an aspect class
+        self._fonthandle = canvas.register_font(self.font)
+
     def draw(self, canvas, offset):
         raise NotImplementedError("Widget descendents MUST implement the draw() method!")
     

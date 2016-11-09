@@ -5,6 +5,10 @@ import numpy
 # FIXME: use resources
 thisdir = os.path.dirname(os.path.realpath(__file__))
 
+# Unicode ranges    
+BASIC_LATIN = (0x20, 0x7F)
+PRIVATE_USE = (0xE000, 0xE000 + 6400)
+    
 class GlyphIndex:
     """ The GlyphIndex class associates codepoints with glyph indices through a sparse list.
         Note that the indices are not actually stored: rather, they are defined to be the 
@@ -66,22 +70,23 @@ class GlyphIndex:
         if not self.sealed: 
             raise Exception("GlyphIndex.lookup() called before index was sealed. Call seal() when done adding glyphs.")
         base = 0
-        for range in self.ranges:
-            if (range[0] <= codepoint and codepoint < range[1]):
-                return base + codepoint - range[0]
+        for rng in self.ranges:
+            print("rng: {}, codepoint: {}".format(rng, codepoint))
+            if (rng[0] <= codepoint and codepoint < rng[1]):
+                return base + codepoint - rng[0]
                 
         raise KeyError("GlyphIndex instance does not contain the specified codepoint ({})".format(codepoint))
             
     @property
     def count(self):
         n = 0
-        for range in self.ranges: n += range[1] - range[0]
+        for rng in self.ranges: n += rng[1] - rng[0]
         return n
         
     def __str__(self):
         s = ""
-        for range in self.ranges:
-            s += "[" + str(range[0]) + ", " + str(range[1]) + "]"
+        for rng in self.ranges:
+            s += "[" + str(rng[0]) + ", " + str(rng[1]) + "]"
         return s
         
 class ControlBox:
@@ -150,8 +155,6 @@ class _RasterizedFont:
     
 class FontRasterizer:
     
-    # Unicode ranges    
-    BASIC_LATIN = (0x20, 0x7F)
     # TODO: many more (http://jrgraphix.net/research/unicode_blocks.php)
     
 
@@ -160,7 +163,7 @@ class FontRasterizer:
         #self.dflt_font = self._rasterize_font(os.path.join(thisdir, "fonts/LiberationSans-Regular.ttf"), 16)
         #print("Default font glyph index: {}".format(self.dflt_font[1]))
         
-    def rasterize_font(self, path, pixel_size):
+    def rasterize_font(self, path, pixel_size, cp_range = BASIC_LATIN):
         """Rasterizes a font for a given pixel size. Returns Rasterization instance (see above)."""
         
         # TODO: optional (keyword?) parameter for "index", for font files containing more than one glyph set
@@ -168,11 +171,9 @@ class FontRasterizer:
         face = ft.Face(path)
         face.select_charmap(ft.FT_ENCODING_UNICODE)
         face.set_pixel_sizes(0, pixel_size)
-        # FIXME: support choosing ranges (more than one)
-        r = FontRasterizer.BASIC_LATIN
         
         glyph_index = GlyphIndex()
-        glyph_index.add_codepoints(r[0], r[1] + 1)
+        glyph_index.add_codepoints(cp_range[0], cp_range[1] + 1)
         glyph_index.seal()
         
         # Construct the pixel buffer and glyph descriptor table
@@ -180,7 +181,12 @@ class FontRasterizer:
         pixel_buffer = bytearray()
         glyph_recs = numpy.empty(7 * glyph_index.count, dtype=numpy.int16) # list of glyph descriptors
         i_gr = 0
-        for ch in range(r[0], r[1] + 1):
+        #for ch in range(cp_range[0], cp_range[1] + 1):
+        ch = cp_range[0] - 1
+        while ch < cp_range[1]:
+            agindex = 0
+            ch, glindex = face.get_next_char(ch, agindex)
+            #print("ch = {}, glindex = {}, agindex = {}".format(ch, glindex, agindex))
             #print("Glyph #{} advance: {}".format(i, face.get_advance(i, 0) / 64))
             face.load_char(chr(ch), ft.FT_LOAD_RENDER | ft.FT_LOAD_TARGET_NORMAL)
             gs = face.glyph # glyph slot
@@ -206,4 +212,5 @@ class FontRasterizer:
         rst.glyph_recs = glyph_recs
         rst.glyph_index = glyph_index
         rst.pixel_buffer = pixel_buffer
-        return rst        
+        return rst
+        

@@ -1,6 +1,6 @@
 import os
 
-from . fontrast import FontRasterizer
+from . fontrast import *
 from . canvas import Canvas
 from . container import Container
 from . label import Label
@@ -17,7 +17,10 @@ class RootWidget(Container):
         super().__init__(**kwargs)
         self.font_rasterizer = FontRasterizer()
         # FIXME: use resources
+        # TODO: find a way to deal with size consistently
         self._dflt_rastfont = self.font_rasterizer.rasterize_font(os.path.join(thisdir, "fonts/LiberationSans-Regular.ttf"), 18)
+        self._dflt_iconfont = self.font_rasterizer.rasterize_font(os.path.join(thisdir, "fonts/MaterialIcons-Regular.ttf"), 24,
+            cp_range = PRIVATE_USE)
         self._canvas = Canvas()
         self._must_redraw = False
         
@@ -25,7 +28,8 @@ class RootWidget(Container):
         """Initialize the canvas and obtain graphics resources."""
         
         self._canvas.init()
-        self.dflt_fonthandle = self._canvas.register_font(self._dflt_rastfont)
+        
+        super().init_graphics(self._canvas)
         
     @property
     def root_widget(self):
@@ -38,12 +42,10 @@ class RootWidget(Container):
         return self._dflt_rastfont
 
     @property
-    def default_font_handle(self):
-        """A font handle (instance of canvas.FontHandle) that widgets can use as their default font.
-        Note that this font handle is only available and valid after init_graphics() has been 
-        called."""
+    def default_icon_font(self):
+        """The default (rasterized) font to obtain icons from."""
         
-        return self.dflt_fonthandle
+        return self._dflt_iconfont
 
     @property
     def must_redraw(self): 
