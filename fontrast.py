@@ -33,7 +33,7 @@ class GlyphIndex:
         # Find where to insert the new range
         i = 0
         while i < len(self.ranges): 
-            if start < self.ranges[i][1]: break
+            if start <= self.ranges[i][1]: break
             i += 1
         #print("i: {}".format(i))
         
@@ -42,7 +42,7 @@ class GlyphIndex:
             # Append a new range
             self.ranges.append([ start, end ])
         else:
-            # New range begins before or inside existing range, or appends to one
+            #print("New range {}:{} begins before or inside existing range, or appends to one".format(start,end))          
             
             # Find last of the ranges we're going to replace (in case the new range spans multiple existing ones)
             j = i
@@ -51,11 +51,12 @@ class GlyphIndex:
             # Compute the new end-of-range codepoint
             new_end = max(end, self.ranges[j][1])
             
-            # Erase the ranges we're replacing 
+            # Erase the ranges we're replacing
             del self.ranges[i + 1 : j + 1]
             
             # Reuse the existing range
-            self.ranges[i] = (start, end)
+            self.ranges[i] = (self.ranges[i][0], new_end)
+            #print("new range {}: {}:{}".format(i, self.ranges[i][0], self.ranges[i][1]))
             
     def seal(self):
         """"MUST be called once all codepoint ranges have been added, and before performing
@@ -71,9 +72,10 @@ class GlyphIndex:
             raise Exception("GlyphIndex.lookup() called before index was sealed. Call seal() when done adding glyphs.")
         base = 0
         for rng in self.ranges:
-            print("rng: {}, codepoint: {}".format(rng, codepoint))
+            #print("rng: {}, codepoint: {}".format(rng, codepoint))
             if (rng[0] <= codepoint and codepoint < rng[1]):
                 return base + codepoint - rng[0]
+            base += rng[1] - rng[0]
                 
         raise KeyError("GlyphIndex instance does not contain the specified codepoint ({})".format(codepoint))
             
@@ -82,6 +84,11 @@ class GlyphIndex:
         n = 0
         for rng in self.ranges: n += rng[1] - rng[0]
         return n
+        
+    def __iter__(self):
+        for rng in self.ranges:
+            for ch in range(rng[0], rng[1]):
+                yield ch
         
     def __str__(self):
         s = ""
@@ -173,20 +180,21 @@ class FontRasterizer:
         face.set_pixel_sizes(0, pixel_size)
         
         glyph_index = GlyphIndex()
-        glyph_index.add_codepoints(cp_range[0], cp_range[1] + 1)
+        ch = cp_range[0] - 1
+        while ch < cp_range[1]:
+            ch, glindex = face.get_next_char(ch, 0)
+            glyph_index.add_codepoints(ch, ch + 1)
+        #glyph_index.add_codepoints(cp_range[0], cp_range[1] + 1)
         glyph_index.seal()
+        print("glyph_index: {}".format(glyph_index))
         
         # Construct the pixel buffer and glyph descriptor table
         print("Glyph count: {}".format(glyph_index.count))
         pixel_buffer = bytearray()
         glyph_recs = numpy.empty(7 * glyph_index.count, dtype=numpy.int16) # list of glyph descriptors
         i_gr = 0
-        #for ch in range(cp_range[0], cp_range[1] + 1):
-        ch = cp_range[0] - 1
-        while ch < cp_range[1]:
-            agindex = 0
-            ch, glindex = face.get_next_char(ch, agindex)
-            #print("ch = {}, glindex = {}, agindex = {}".format(ch, glindex, agindex))
+        for ch in glyph_index:
+            #print("ch = {}".format(ch))
             #print("Glyph #{} advance: {}".format(i, face.get_advance(i, 0) / 64))
             face.load_char(chr(ch), ft.FT_LOAD_RENDER | ft.FT_LOAD_TARGET_NORMAL)
             gs = face.glyph # glyph slot

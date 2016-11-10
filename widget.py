@@ -5,7 +5,6 @@ from . eventemitter import *
 class Widget:
     
     def __init__(self, font = None, **kwargs):
-        if font: print("Widget.__init__(): font: {}".format(font.glyph_index))
         self._pos = (0, 0)
         self._ext = (0, 0)
         self._font = font
