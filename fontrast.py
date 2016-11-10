@@ -100,7 +100,7 @@ class ControlBox:
 
     @staticmethod
     def from_glyph_records(records, glyph_index):
-        r = records; b = 7 * glyph_index
+        r = records; b = 8 * glyph_index
         return ControlBox(r[b+0], r[b+1], r[b+2], r[b+3], r[b+4], r[b+5])
            
     def __init__(self, x_min = 32767, x_max = -32768, y_min = 32767, y_max = -32768, adv_x = 0, adv_y = 0):
@@ -123,13 +123,14 @@ class _RasterizedFont:
         glyph_recs:
             A numpy array of int16 values; each group of 7 of these values (= one "glyph descriptor") contains 
             the information needed to render the corresponding glyph:
-            0 "x_min":       position of the left-most pixel of the glyph, relative to the glyph origin
-            1 "x_max":       ditto right-most pixel
-            2 "y_min":       ditto bottom pixel
-            3 "y_max":       ditto top-most pixel
-            4 "adv_x":       where to place the origin of the next character (relative to the origin of this one)
-            5 "adv_y":       ditto for vertical axis (for vertical scripts only)
-            6 "first_pixel": ordinal position of first pixel in the (one-dimensional) pixel-buffer (see below)
+            0 "x_min":              position of the left-most pixel of the glyph, relative to the glyph origin
+            1 "x_max":              ditto right-most pixel
+            2 "y_min":              ditto bottom pixel
+            3 "y_max":              ditto top-most pixel
+            4 "adv_x":              where to place the origin of the next character (relative to the origin of this one)
+            5 "adv_y":              ditto for vertical axis (for vertical scripts only)
+            6 "pixel_base_low":     low byte of ordinal position of first pixel in the (one-dimensional) pixel-buffer (see below)
+            7 "pixel_base_high":    high byte 
         glyph_index: 
             A GlyphIndex object (to look up glyph indices from Unicode codepoints)
         pixel_buffer:
@@ -181,17 +182,17 @@ class FontRasterizer:
         
         glyph_index = GlyphIndex()
         ch = cp_range[0] - 1
-        while ch < cp_range[1]:
+        while True:
             ch, glindex = face.get_next_char(ch, 0)
+            if ch >= cp_range[1]: break
             glyph_index.add_codepoints(ch, ch + 1)
-        #glyph_index.add_codepoints(cp_range[0], cp_range[1] + 1)
         glyph_index.seal()
         print("glyph_index: {}".format(glyph_index))
         
         # Construct the pixel buffer and glyph descriptor table
         print("Glyph count: {}".format(glyph_index.count))
         pixel_buffer = bytearray()
-        glyph_recs = numpy.empty(7 * glyph_index.count, dtype=numpy.int16) # list of glyph descriptors
+        glyph_recs = numpy.empty(8 * glyph_index.count, dtype=numpy.int16) # list of glyph descriptors
         i_gr = 0
         for ch in glyph_index:
             #print("ch = {}".format(ch))
@@ -201,15 +202,17 @@ class FontRasterizer:
             #gs.render_glyph()
             bm = face.glyph.bitmap
             #print("rows: {}, cols: {}, left: {}, top: {}".format(gs.bitmap.rows, gs.bitmap.width, gs.bitmap_left, gs.bitmap_top))
-            # Compute control box
+            # Assemble glyph record
+            pixel_base = len(pixel_buffer)
             glyph_recs[i_gr + 0] = gs.bitmap_left
             glyph_recs[i_gr + 1] = gs.bitmap.width + gs.bitmap_left
             glyph_recs[i_gr + 2] = gs.bitmap_top - gs.bitmap.rows
             glyph_recs[i_gr + 3] = gs.bitmap_top
             glyph_recs[i_gr + 4] = gs.advance.x >> 6
             glyph_recs[i_gr + 5] = gs.advance.y >> 6
-            glyph_recs[i_gr + 6] = len(pixel_buffer)
-            i_gr += 7
+            glyph_recs[i_gr + 6] = pixel_base & 255
+            glyph_recs[i_gr + 7] = pixel_base >> 8
+            i_gr += 8
             # Append pixel_buffer to buffer
             #print("Width: {}, Rows: {}, mode: {}, buffer: {}".format(bm.width, bm.rows, bm.pixel_mode, bm.buffer))
             pixel_buffer.extend(bm.buffer)

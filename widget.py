@@ -2,11 +2,10 @@ from . events import *
 from . geometry import *
 from . eventemitter import *
 
-class Widget:
+class Widget(Rectangle):
     
     def __init__(self, font = None, **kwargs):
-        self._pos = (0, 0)
-        self._ext = (0, 0)
+        super().__init__(**kwargs)
         self._font = font
         self._hovered = False
         # Subscribable events
@@ -19,22 +18,6 @@ class Widget:
     @property
     def mouseleave(self): return self._mouseleave
     
-    @property
-    def position(self):
-        return self._pos
-        
-    @position.setter
-    def position(self, x, *y):
-        self._pos = (x, *y) if y else x
-
-    @property
-    def extents(self):
-        return self._ext
-        
-    @extents.setter
-    def extents(self, w, *h):
-        self._ext = (w, *h) if h else w
-        
     def set_parent(self, parent):
         self._parent = parent
         
@@ -60,6 +43,10 @@ class Widget:
     @property 
     def fonthandle(self):
         return self._fonthandle
+
+    def get_optimal_size(self):
+        raise NotImplementedError("Widget descendents MUST implement the get_optimal_size() method!")
+        # TODO: use a dummy implementation returning (0, 0) so that chaining can be used ?
         
     def layout(self):
         raise NotImplementedError("Widget descendents MUST implement the layout method!")
@@ -69,15 +56,20 @@ class Widget:
         #print("Widget.handle_event(): {}".format(event))
         if isinstance(event, MouseMotionEvent):
             #print("event is MouseMotionEvent")
-            if Rectangle(self.position + offset, self.extents).contains(event.position):
+            if self.contains( (event.position[0] - offset[0], event.position[1] - offset[1]) ):
                 if not self.hovered:
                     self._do_mouseenter()
             else:
                 if self.hovered:
                     self._do_mouseleave()
-    
+
+    def update_view(self):
+        """The update_view() method is where widgets must update their view state to reflect a changed model state."""      
+        raise NotImplementedError("Widget descendents MUST implement the update_view() method!")
+        
     def init_graphics(self,canvas):
         # FIXME: move this to an aspect class
+        #print("Widget.init_graphics()")
         self._fonthandle = canvas.register_font(self.font)
 
     def draw(self, canvas, offset):
@@ -96,6 +88,7 @@ class Widget:
     # PRIVATE STUFF -------------------------------------------------
     
     def _do_mouseenter(self):
+        print("_do_mouseenter")
         self._hovered = True
         self._emit_mouseenter()
         self.invalidate()

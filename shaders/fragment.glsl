@@ -31,12 +31,14 @@ void main() {
     // Glyph rendering
     else if (render_mode == 3) {
 
-        int descr_base = int(7 * frag_glyphindex);
-        int x_min = texelFetch(glyph_descriptors, descr_base + 0).r;
-        int x_max = texelFetch(glyph_descriptors, descr_base + 1).r;
-        int y_min = texelFetch(glyph_descriptors, descr_base + 2).r;
-        int y_max = texelFetch(glyph_descriptors, descr_base + 3).r;
-        int pixel_base = texelFetch(glyph_descriptors, descr_base + 6).r; // TODO: combine with next short
+        int descr_base = int(8 * frag_glyphindex);
+        int x_min      = texelFetch(glyph_descriptors, descr_base + 0).r;
+        int x_max      = texelFetch(glyph_descriptors, descr_base + 1).r;
+        int y_min      = texelFetch(glyph_descriptors, descr_base + 2).r;
+        int y_max      = texelFetch(glyph_descriptors, descr_base + 3).r;
+        int pbase_low  = texelFetch(glyph_descriptors, descr_base + 6).r;
+        int pbase_high = texelFetch(glyph_descriptors, descr_base + 7).r;
+        int pixel_base = (pbase_low < 0 ? 256 + pbase_low : pbase_low) + 256 * pbase_high;
         
         int w = x_max - x_min, h = y_max - y_min;
         

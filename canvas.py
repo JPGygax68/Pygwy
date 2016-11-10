@@ -133,6 +133,7 @@ class Canvas:
             # Upload bitmap for default font as buffer object, and bind that to a texture object
             handle.bitmap_buf = glGenBuffers(1)
             glBindBuffer(GL_TEXTURE_BUFFER, handle.bitmap_buf)
+            print("font pixel buffer size: {}", len(font.pixel_buffer))
             glBufferStorage(GL_TEXTURE_BUFFER, len(font.pixel_buffer), font.pixel_buffer, 0)
             handle.texture = glGenTextures(1)
             glBindTexture(GL_TEXTURE_BUFFER, handle.texture)
@@ -142,6 +143,7 @@ class Canvas:
             # Do the same for the glyph records
             handle.glyphrecs_buf = glGenBuffers(1)
             glBindBuffer(GL_TEXTURE_BUFFER, handle.glyphrecs_buf)
+            #print("glyph_recs size: {}", font.glyph_recs.nbytes)
             glBufferStorage(GL_TEXTURE_BUFFER, font.glyph_recs.nbytes, font.glyph_recs, 0)
             handle.glyphrecs_tex = glGenTextures(1)
             glBindTexture(GL_TEXTURE_BUFFER, handle.glyphrecs_tex)
@@ -193,8 +195,8 @@ class Canvas:
         indices = []
         for ch in text:
             index = font.glyph_index.lookup(ord(ch))
-            adv_x = font.glyph_recs[7*index + 4]
-            adv_y = font.glyph_recs[7*index + 5]
+            adv_x = font.glyph_recs[8*index + 4]
+            adv_y = font.glyph_recs[8*index + 5]
             vertices.extend( [x, y] )
             indices.append( index )
             x += adv_x

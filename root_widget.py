@@ -3,8 +3,6 @@ import os
 from . fontrast import *
 from . canvas import Canvas
 from . container import Container
-from . label import Label
-from . button import Button
 
 # FIXME: use resources
 thisdir = os.path.dirname(os.path.realpath(__file__))
@@ -27,8 +25,7 @@ class RootWidget(Container):
     def init_graphics(self):
         """Initialize the canvas and obtain graphics resources."""
         
-        self._canvas.init()
-        
+        self._canvas.init()        
         super().init_graphics(self._canvas)
         
     @property

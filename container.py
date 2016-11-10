@@ -10,7 +10,16 @@ class Container(Widget):
         self._children.append(child)
         child.set_parent(self)
         
+    def layout(self):
+        for child in self._children:
+            child.layout()
+            
+    def update_view(self):
+        for child in self._children:
+            child.update_view()
+            
     def init_graphics(self, canvas):
+        super().init_graphics(canvas)
         for child in self._children:
             child.init_graphics(canvas)
             
@@ -21,7 +30,7 @@ class Container(Widget):
         Returns True if one of the children consumed the event, False otherwise."""
         
         #print("Container.handle_event(): event: {}, offset: {}".format(event, offset))
-        offset = (offset[0] - self.position[0], offset[1] - self.position[1])
+        offset = (offset[0] + self.position[0], offset[1] + self.position[1])
         for child in self._children:
             if child.handle_event(event, offset): return True
         
