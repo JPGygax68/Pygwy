@@ -56,12 +56,14 @@ class Widget(Rectangle):
         #print("Widget.handle_event(): {}".format(event))
         if isinstance(event, MouseMotionEvent):
             #print("event is MouseMotionEvent")
-            if self.contains( (event.position[0] - offset[0], event.position[1] - offset[1]) ):
+            x = event.position[0] - offset[0] - self.position[0]
+            y = event.position[1] - offset[1] - self.position[1]
+            if self.contains( (x, y) ):
                 if not self.hovered:
-                    self._do_mouseenter()
+                    self.do_mouseenter( (x, y) )
             else:
                 if self.hovered:
-                    self._do_mouseleave()
+                    self.do_mouseleave( (x, y) )
 
     def update_view(self):
         """The update_view() method is where widgets must update their view state to reflect a changed model state."""      
@@ -75,7 +77,7 @@ class Widget(Rectangle):
     def draw(self, canvas, offset):
         raise NotImplementedError("Widget descendents MUST implement the draw() method!")
     
-    # FOR DESCENDANTS -----------------------------------------------
+    # "PROTECTED" ---------------------------------------------------
     
     def invalidate(self):
         """The invalidate() method triggers a redraw of the widget.
@@ -85,22 +87,22 @@ class Widget(Rectangle):
         assert(self._parent)
         self._parent.child_invalidated(self)
         
+    def do_mouseenter(self, pos):
+        print("do_mouseenter")
+        self._hovered = True
+        self._emit_mouseenter(pos[0], pos[1])
+        self.invalidate()
+        
+    def do_mouseleave(self, pos):
+        self._hovered = False
+        self._emit_mouseleave(pos[0], pos[1])
+        self.invalidate()
+        
     # PRIVATE STUFF -------------------------------------------------
     
-    def _do_mouseenter(self):
-        print("_do_mouseenter")
-        self._hovered = True
-        self._emit_mouseenter()
-        self.invalidate()
-        
-    def _do_mouseleave(self):
-        self._hovered = False
-        self._emit_mouseleave()
-        self.invalidate()
-        
-    def _emit_mouseenter(self):
+    def _emit_mouseenter(self, x, y):
         for subscriber in self._mouseenter: subscriber(self)
         
-    def _emit_mouseleave(self): 
+    def _emit_mouseleave(self, x, y): 
         for subscriber in self._mouseleave: subscriber(self)
         

@@ -25,3 +25,6 @@ class MouseButtonEvent(MouseEvent):
     
     @property
     def state_is_released(self): raise NotImplementedError("MouseButtonEvent.state_is_released")
+
+    @property
+    def state_is_pressed(self): raise NotImplementedError("MouseButtonEvent.state_is_pressed")
