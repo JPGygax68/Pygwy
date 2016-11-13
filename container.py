@@ -1,4 +1,5 @@
 from . widget import Widget
+from . geometry import Point
 
 class Container(Widget):
 
@@ -29,16 +30,16 @@ class Container(Widget):
         specified in the event, if any.)
         Returns True if one of the children consumed the event, False otherwise."""
         
-        #print("Container.handle_event(): event: {}, offset: {}".format(event, offset))
-        offset = (offset[0] + self.position[0], offset[1] + self.position[1])
+        offset = offset + self.position
         for child in self._children:
             if child.handle_event(event, offset): return True
         
         return False
         
     def draw(self, canvas, offset):
+        offset = offset + self.position
         for child in self._children:
-            child.draw(canvas, (offset[0] + self._pos[0], offset[1] + self._pos[1]))
+            child.draw(canvas, offset)
             
     def child_invalidated(self, child):
         self.invalidate()

@@ -56,14 +56,14 @@ class Widget(Rectangle):
         #print("Widget.handle_event(): {}".format(event))
         if isinstance(event, MouseMotionEvent):
             #print("event is MouseMotionEvent")
-            x = event.position[0] - offset[0] - self.position[0]
-            y = event.position[1] - offset[1] - self.position[1]
-            if self.contains( (x, y) ):
+            pos = event.position - offset
+            if self.contains(pos):
                 if not self.hovered:
-                    self.do_mouseenter( (x, y) )
+                    self.do_mouseenter(pos)
             else:
                 if self.hovered:
-                    self.do_mouseleave( (x, y) )
+                    self.do_mouseleave(pos)
+        return False
 
     def update_view(self):
         """The update_view() method is where widgets must update their view state to reflect a changed model state."""      
@@ -90,19 +90,19 @@ class Widget(Rectangle):
     def do_mouseenter(self, pos):
         print("do_mouseenter")
         self._hovered = True
-        self._emit_mouseenter(pos[0], pos[1])
+        self._emit_mouseenter(pos)
         self.invalidate()
         
     def do_mouseleave(self, pos):
         self._hovered = False
-        self._emit_mouseleave(pos[0], pos[1])
+        self._emit_mouseleave(pos)
         self.invalidate()
         
     # PRIVATE STUFF -------------------------------------------------
     
-    def _emit_mouseenter(self, x, y):
+    def _emit_mouseenter(self, pos):
         for subscriber in self._mouseenter: subscriber(self)
         
-    def _emit_mouseleave(self, x, y): 
+    def _emit_mouseleave(self, pos): 
         for subscriber in self._mouseleave: subscriber(self)
         

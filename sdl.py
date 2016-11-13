@@ -1,5 +1,6 @@
 import sdl2
 from . events import *
+from . geometry import Point
 
 class EventWrapper(Event):
     def __init__(self, event):
@@ -15,7 +16,7 @@ class MouseWrapper(EventWrapper, MouseEvent):
     
     @property
     def position(self):
-        return (self.event.motion.x, self.event.motion.y)
+        return Point(self.event.motion.x, self.event.motion.y)
 
 class MouseMotionWrapper(MouseWrapper, MouseMotionEvent):
     pass

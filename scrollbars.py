@@ -15,8 +15,7 @@ class Thumb(Draggable):
         self.extents = (w, h)
         
     def draw(self, canvas, offset):
-        x = self.position[0] + offset[0]
-        y = self.position[1] + offset[1]
+        x, y = self.position + offset
         #print("x,y: {}, {}".format(x,y))
         clr = (0.6, 0.6, 0.6, 1) if self.hovered else (0.5, 0.5, 0.5, 1)
         canvas.rectangle(x, y, self.extents[0], self.extents[1], clr)
@@ -32,6 +31,7 @@ class VerticalScrollbar(Container):
         self.add_child(self._up_btn  )
         self.add_child(self._down_btn)
         self._thumb = Thumb()
+        self._down_btn.clicked.subscribe(lambda source: print("source: {}".format(source)))
 
     def layout(self):
         #print("VerticalScrollbar.layout()")
@@ -41,7 +41,7 @@ class VerticalScrollbar(Container):
         ext_down = self._down_btn.get_optimal_size()
         ext_up   = self._up_btn  .get_optimal_size()
         y = ext_down[1]
-        self._up_btn.position = (0, 0)
+        self._up_btn.position = Point(0, 0)
         self._up_btn.extents  = (self.extents[0], ext_up[1])
         y2 = self.extents[1] - ext_down[1]
         self._down_btn.position = (0, y2)

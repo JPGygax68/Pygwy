@@ -3,6 +3,7 @@ import os
 from . fontrast import *
 from . canvas import Canvas
 from . container import Container
+from . geometry import Point
 
 # FIXME: use resources
 thisdir = os.path.dirname(os.path.realpath(__file__))
@@ -63,11 +64,11 @@ class RootWidget(Container):
         """Inject the specified event into the widget hierarchy. Returns True if the event was
         consumed, False otherwise."""        
         #print("RootWidget.handle_event(): {}".format(event))
-        return super().handle_event(event, (0, 0))
+        return super().handle_event(event, Point(0, 0))
         
     def render(self):
         with self._canvas:
-            self.draw(self._canvas, (0, 0))
+            self.draw(self._canvas, Point(0, 0))
         # FIXME: the following belongs into an aspect
         self._must_redraw = False
             
