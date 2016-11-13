@@ -21,22 +21,24 @@ class Draggable(Rectangle):
     
     @property
     def relative_position(self):
-        return (self.position[0] - self._from_pos[0], self.position[1] - self._from_pos[1])
+        return self.position - self._from_pos
         
     @relative_position.setter
     def relative_position(self, pos):
         self.position = (self._from_pos[0] + pos[0], self._from_pos[1] + pos[1])
         
-    def start_dragging(self, refpos):
-        self._starting_refpos = refpos
+    def start_dragging(self, ptrpos):
+        """ptrpos:  pointer position when the dragging starts (independent from the position of the Draggable)"""
+        
+        self._grab_pos = ptrpos
+        self._starting_pos = self.position
         self._dragging = True
         print("started dragging")
         
-    def drag(self, refpos):
-        #self._current_refpos = refpos
-        pos = (self._from_pos[0] + refpos[0] - self._starting_refpos[0], self._from_pos[1] + refpos[1] - self._starting_refpos[1])
+    def drag(self, ptrpos):
+        pos = self._starting_pos + ptrpos - self._grab_pos
         self.position = (max(self._from_pos[0], min(self._to_pos[0], pos[0])), max(self._from_pos[1], min(self._to_pos[1], pos[1])))
-        print("dragging, refpos: {}, position: {}".format(refpos, self.position))
+        print("dragging, ptrpos: {}, position: {}".format(ptrpos, self.position))
         
     def stop_dragging(self):
         self._dragging = False

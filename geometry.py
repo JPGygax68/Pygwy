@@ -10,7 +10,7 @@ class Point(collections.namedtuple('_Point', 'x y')):
         return Point(self[0] + delta[0], self[1] + delta[1])
         
     def __sub__(self, delta):
-        return Point(self.x - delta[0], self.y - delta[1])
+        return Point(self[0] - delta[0], self[1] - delta[1])
     
 class Extents(collections.namedtuple('_Extents', 'w h')):
     pass
