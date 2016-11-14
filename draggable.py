@@ -1,4 +1,4 @@
-from . geometry import Rectangle
+from . geometry import Rectangle, Point
 
 class Draggable(Rectangle):
     
@@ -36,10 +36,14 @@ class Draggable(Rectangle):
         print("started dragging")
         
     def drag(self, ptrpos):
-        pos = self._starting_pos + ptrpos - self._grab_pos
-        self.position = (max(self._from_pos[0], min(self._to_pos[0], pos[0])), max(self._from_pos[1], min(self._to_pos[1], pos[1])))
-        print("dragging, ptrpos: {}, position: {}".format(ptrpos, self.position))
+        self._move_to( self._starting_pos + ptrpos - self._grab_pos )
         
     def stop_dragging(self):
         self._dragging = False
         print("stopped dragging")
+        
+    def move(self, vec):
+        self._move_to(self.position + vec)
+        
+    def _move_to(self, pos):
+        self.position = Point(max(self._from_pos[0], min(self._to_pos[0], pos[0])), max(self._from_pos[1], min(self._to_pos[1], pos[1])))

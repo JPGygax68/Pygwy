@@ -1,6 +1,6 @@
 import sdl2
 from . events import *
-from . geometry import Point
+from . geometry import Point, Vector
 
 class EventWrapper(Event):
     def __init__(self, event):
@@ -39,12 +39,19 @@ class MouseButtonWrapper(MouseWrapper, MouseButtonEvent):
     @property
     def state_is_pressed(self): return self.event.button.state == sdl2.SDL_PRESSED
     
+class MouseWheelWrapper(MouseWrapper, MouseWheelEvent):
+
+    @property
+    def vector(self):
+        return Vector(self.event.wheel.x, self.event.wheel.y)
+        
 _wrapper_map = {
     sdl2.SDL_KEYDOWN: KeyboardWrapper,
     sdl2.SDL_KEYUP: KeyboardWrapper,
     sdl2.SDL_MOUSEMOTION: MouseMotionWrapper,
     sdl2.SDL_MOUSEBUTTONDOWN: MouseButtonWrapper,
     sdl2.SDL_MOUSEBUTTONUP: MouseButtonWrapper,
+    sdl2.SDL_MOUSEWHEEL: MouseWheelWrapper
 }    
 
 def wrap_event(event):

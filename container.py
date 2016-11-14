@@ -1,5 +1,6 @@
 from . widget import Widget
 from . geometry import Point
+from . events import *
 
 class Container(Widget):
 
@@ -24,17 +25,21 @@ class Container(Widget):
         for child in self._children:
             child.init_graphics(canvas)
             
-    def handle_event(self, event, offset):
-        """Sends the event to the children, after adding the container's position to the specified offset.
+    def handle_event(self, event, parent_offset):
+        """Sends the event to the children, after adding the container's position to the specified parent offset.
         (This is done so that a widget can more easily compare its own rectangle with the pointer position
         specified in the event, if any.)
         Returns True if one of the children consumed the event, False otherwise."""
         
-        offset = offset + self.position
-        for child in self._children:
-            if child.handle_event(event, offset): return True
+        offset = parent_offset + self.position
+        for child in self._children:        
+            if isinstance(event, MouseWheelEvent) and self.hovered:
+                if child.handle_event(event, offset): return True
+            # TODO: more special handling; mouse capture etc.
+            else:
+                if child.handle_event(event, offset): return True
         
-        return False
+        return super().handle_event(event, parent_offset)
         
     def draw(self, canvas, offset):
         offset = offset + self.position

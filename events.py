@@ -28,3 +28,8 @@ class MouseButtonEvent(MouseEvent):
 
     @property
     def state_is_pressed(self): raise NotImplementedError("MouseButtonEvent.state_is_pressed")
+
+class MouseWheelEvent(MouseEvent):
+
+    @property
+    def vector(self): raise NotImplementedError("MouseWheelEvent.vector")

@@ -53,12 +53,12 @@ class Widget(UIElement):
         raise NotImplementedError("Widget descendents MUST implement the layout method!")
         # TODO: is the above necessarily true ?
         
-    def handle_event(self, event, offset):
+    def handle_event(self, event, parent_offset):
         #print("Widget.handle_event(): {}".format(event))
         if isinstance(event, MouseMotionEvent):
-            #print("event is MouseMotionEvent")
-            pos = event.position - offset
+            pos = event.position - parent_offset
             if self.contains(pos):
+                #print("event is MouseMotionEvent, pos: {}, rect: {}, {}".format(pos, self.position, self.extents))
                 if not self.hovered:
                     self.do_mouseenter(pos)
             else:
@@ -95,6 +95,7 @@ class Widget(UIElement):
         self.invalidate()
         
     def do_mouseleave(self, pos):
+        print("do_mouseleave")
         self._hovered = False
         self._emit_mouseleave(pos)
         self.invalidate()

@@ -65,29 +65,31 @@ class VerticalScrollbar(Container):
         super().draw(canvas, offset)
         self._thumb.draw(canvas, (self.position[0] + offset[0], self.position[1] + offset[1]))
 
-    def handle_event(self, event, offset):
+    def handle_event(self, event, parent_offset):
         if isinstance(event, MouseMotionEvent):
-            pos = (event.position[0] - self.position[0] - offset[0], event.position[1] - self.position[1] - offset[1])
+            pos = event.position - parent_offset - self.position
             if not self._thumb.hovered and self._thumb.contains(pos):
                 self._thumb.hovered = True
                 print("hovered!")
                 self.invalidate()
-                return True
             elif self._thumb.hovered and not self._thumb.contains(pos):
                 self._thumb.hovered = False
                 print("un-hovered!")
                 self.invalidate()
-                return False
             if self._thumb.dragging:
                 self._thumb.drag(pos)
                 self.invalidate()
         elif isinstance(event, MouseButtonEvent):
+            pos = event.position - parent_offset - self.position
             if event.button == 1 and event.state_is_pressed:
-                pos = (event.position[0] - self.position[0] - offset[0], event.position[1] - self.position[1] - offset[1])
                 if self._thumb.contains(pos):
                     self._thumb.start_dragging(pos)
             elif event.button == 1 and event.state_is_released:
                 if self._thumb.dragging:
                     self._thumb.stop_dragging()
+        elif isinstance(event, MouseWheelEvent):
+            if self.hovered:
+                self._thumb.move( - event.vector )
+            return True
                     
-        super().handle_event(event, offset)
+        super().handle_event(event, parent_offset)

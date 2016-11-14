@@ -12,6 +12,12 @@ class Point(collections.namedtuple('_Point', 'x y')):
     def __sub__(self, delta):
         return Point(self[0] - delta[0], self[1] - delta[1])
     
+    def __neg__(self):
+        return Point( - self[0], - self[1] )
+        
+class Vector(Point):
+    pass
+
 class Extents(collections.namedtuple('_Extents', 'w h')):
     
     def min(self, other):
@@ -25,7 +31,7 @@ class Rectangle(object):
     def __init__(self, origin = Point(0, 0), extents = Extents(0, 0), **kwargs):
         super().__init__(**kwargs)
         self._pos = origin
-        self._ext  = extents
+        self._ext = extents
         
     @property
     def position(self):
