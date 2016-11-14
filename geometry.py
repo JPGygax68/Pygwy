@@ -13,9 +13,14 @@ class Point(collections.namedtuple('_Point', 'x y')):
         return Point(self[0] - delta[0], self[1] - delta[1])
     
 class Extents(collections.namedtuple('_Extents', 'w h')):
-    pass
     
-class Rectangle:
+    def min(self, other):
+        return Extents( min(self[0], other[0]), min(self[1], other[1]) )
+        
+    def max(self, other):
+        return Extents( max(self[0], other[0]), max(self[1], other[1]) )
+    
+class Rectangle(object):
     
     def __init__(self, origin = Point(0, 0), extents = Extents(0, 0), **kwargs):
         super().__init__(**kwargs)
@@ -37,7 +42,8 @@ class Rectangle:
     @extents.setter
     def extents(self, w, *h):
         self._ext = Extents(w, *h) if h else Extents(w[0], w[1])
-        
+            
     def contains(self, point):
         return (point[0] >= self._pos[0] and point[0] < self._pos[0] + self._ext[0]
             and point[1] >= self._pos[1] and point[1] < self._pos[1] + self._ext[1])
+            

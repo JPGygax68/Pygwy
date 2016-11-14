@@ -38,6 +38,8 @@ class VerticalScrollbar(Container):
         w, h = self.extents
         self._up_btn.font   = self.root_widget.default_icon_font
         self._down_btn.font = self.root_widget.default_icon_font
+        self._down_btn.minimal_size = Extents(w, w) # make arrow buttons square
+        self._up_btn.minimal_size   = Extents(w, w) # ditto
         ext_down = self._down_btn.get_optimal_size()
         ext_up   = self._up_btn  .get_optimal_size()
         y = ext_down[1]

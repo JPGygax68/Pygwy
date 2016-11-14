@@ -1,8 +1,9 @@
 from . events import *
 from . geometry import *
 from . eventemitter import *
+from . uielement import UIElement
 
-class Widget(Rectangle):
+class Widget(UIElement):
     
     def __init__(self, font = None, **kwargs):
         super().__init__(**kwargs)

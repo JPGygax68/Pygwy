@@ -1,7 +1,9 @@
+from . geometry import Extents
 from . widget import Widget
 from . clickable import Clickable
+from . uielement import Sizeable
 
-class Button(Clickable, Widget):
+class Button(Sizeable, Clickable, Widget):
 
     def __init__(self, caption = "Button", **kwargs):
         super().__init__(**kwargs)
@@ -12,7 +14,7 @@ class Button(Clickable, Widget):
     def get_optimal_size(self):
         cbox = self.font.compute_control_box(self._caption)
         # FIXME: for now, we just add a 1 pixel border, but this should be injected by the box model
-        return (cbox.width + 2, cbox.height + 2)
+        return max( Extents(cbox.width + 2, cbox.height + 2), self.minimal_size )
         
     def layout(self):
         print("self: {}".format(self))
@@ -51,8 +53,7 @@ class Button(Clickable, Widget):
     #    return super().handle_event(event, offset)
 
     def draw(self, canvas, offset):
-        x = offset[0] + self.position[0]
-        y = offset[1] + self.position[1]
+        x, y = offset + self.position
         with canvas.clip(x, y, self._ext[0], self._ext[1]):
             clr = self.face_color
             if clr[3] != 0: canvas.rectangle(x, y, self._ext[0], self._ext[1], clr)
