@@ -49,6 +49,14 @@ class Rectangle(object):
     def extents(self, w, *h):
         self._ext = Extents(w, *h) if h else Extents(w[0], w[1])
             
+    @property
+    def width(self):
+        return self.extents.w
+        
+    @property
+    def height(self):
+        return self.extents.h
+        
     def contains(self, point):
         return (point[0] >= self._pos[0] and point[0] < self._pos[0] + self._ext[0]
             and point[1] >= self._pos[1] and point[1] < self._pos[1] + self._ext[1])

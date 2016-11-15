@@ -42,6 +42,7 @@ class VerticalScrollbar(Container):
         self._down_btn = ScrollDownButton()
         self.add_child(self._up_btn  )
         self.add_child(self._down_btn)
+        self._slide = Rectangle()
         self._thumb = Thumb()
         #self._down_btn.clicked.subscribe(lambda source: print("source: {}".format(source)))
         self._position_changed = EventEmitter()
@@ -54,8 +55,8 @@ class VerticalScrollbar(Container):
         w, h = self.extents
         self._up_btn.font   = self.root_widget.default_icon_font
         self._down_btn.font = self.root_widget.default_icon_font
-        self._down_btn.minimal_size = Extents(w, int(2 * w / 3)) # make arrow buttons square
-        self._up_btn.minimal_size   = Extents(w, int(2 * w / 3)) # ditto
+        self._down_btn.minimal_size = Extents(w, int(2 * w / 3))
+        self._up_btn.minimal_size   = Extents(w, int(2 * w / 3))
         ext_down = self._down_btn.get_optimal_size()
         ext_up   = self._up_btn  .get_optimal_size()
         y1 = ext_down[1]
@@ -64,6 +65,7 @@ class VerticalScrollbar(Container):
         y2 = self.extents[1] - ext_down[1]
         self._down_btn.position = (0, y2)
         self._down_btn.extents  = (w, ext_down[1])
+        self._slide = Rectangle( Point(0, y1), Extents(w, y2 - y1) )
         ls = y2 - y1 # "slide" length
         lt = min(ls, int(ls * self._lengths[0] / self._lengths[1])) if self._lengths[1] > 0 else ls
         self._thumb.set_size( self.extents[0], lt )
@@ -89,10 +91,22 @@ class VerticalScrollbar(Container):
         
     def line_up(self):
         self._thumb.move( Vector(0, -1) )
+        self.do_value_changed()
     
     def line_down(self):
-        print("line_down")
+        #print("line_down")
         self._thumb.move( Vector(0, 1) )
+        self.do_value_changed()
+        
+    def page_up(self):
+        print("page_up()")
+        self._thumb.move( Vector(0, -self._thumb.height) )
+        self.do_value_changed()
+    
+    def page_down(self):
+        print("page_down()")
+        self._thumb.move( Vector(0,  self._thumb.height) )
+        self.do_value_changed()
         
     def handle_event(self, event, parent_offset):
         if isinstance(event, MouseMotionEvent):
@@ -114,9 +128,17 @@ class VerticalScrollbar(Container):
             if event.button == 1 and event.state_is_pressed:
                 if self._thumb.contains(pos):
                     self._thumb.start_dragging(pos)
+                    return True
+                elif self._slide.contains(pos):
+                    if pos.y < self._thumb.position.y:
+                        self.page_up()
+                    else:
+                        self.page_down()
+                    return True
             elif event.button == 1 and event.state_is_released:
                 if self._thumb.dragging:
                     self._thumb.stop_dragging()
+                    return True
         elif isinstance(event, MouseWheelEvent):
             if self.hovered:
                 self._thumb.move( - event.vector )
