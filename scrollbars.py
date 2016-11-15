@@ -1,15 +1,15 @@
 from . container import Container
 from . root_widget import RootWidget
-from . button import Button
+from . button import CustomButton
 from . geometry import *
 from . events import *
 from . draggable import Draggable
+from . eventemitter import *
 
 class Thumb(Draggable):
 
     def __init__(self):
         super().__init__()
-        self.hovered = False
         
     def set_size(self, w, h):
         self.extents = (w, h)
@@ -20,19 +20,35 @@ class Thumb(Draggable):
         clr = (0.6, 0.6, 0.6, 1) if self.hovered else (0.5, 0.5, 0.5, 1)
         canvas.rectangle(x, y, self.extents[0], self.extents[1], clr)
     
+class ScrollUpButton(CustomButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(caption='\uE5C7', *args, **kwargs)
+    def do_clicked(self):
+        self.parent.line_up()
+        
+class ScrollDownButton(CustomButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(caption='\uE5C5', *args, **kwargs)
+    def do_clicked(self):
+        self.parent.line_down()
+        
 class VerticalScrollbar(Container):
     
     def __init__(self, *args, lengths = (0, 0), **kwargs):
         # TODO: set lengths here, or define extra property ?
         super().__init__(*args, **kwargs)
         self._lengths = lengths
-        self._up_btn   = Button(caption = '\uE5C7')
-        self._down_btn = Button(caption = '\uE5C5')
+        self._up_btn   = ScrollUpButton()
+        self._down_btn = ScrollDownButton()
         self.add_child(self._up_btn  )
         self.add_child(self._down_btn)
         self._thumb = Thumb()
-        self._down_btn.clicked.subscribe(lambda source: print("source: {}".format(source)))
+        #self._down_btn.clicked.subscribe(lambda source: print("source: {}".format(source)))
+        self._position_changed = EventEmitter()
 
+    @property
+    def position_changed(self): return self._position_changed
+    
     def layout(self):
         #print("VerticalScrollbar.layout()")
         w, h = self.extents
@@ -51,7 +67,7 @@ class VerticalScrollbar(Container):
         ls = y2 - y1 # "slide" length
         lt = min(ls, int(ls * self._lengths[0] / self._lengths[1])) if self._lengths[1] > 0 else ls
         self._thumb.set_size( self.extents[0], lt )
-        self._thumb.define_range( (0, y1), (0, y2 - self._thumb.extents[1]) )
+        self._thumb.range = ( Point(0, y1), Point(0, y2 - self._thumb.extents[1]) )
         super().layout() # call layout() on children (buttons)
         
     def init_graphics(self, canvas):
@@ -67,6 +83,17 @@ class VerticalScrollbar(Container):
         super().draw(canvas, parent_offset)
         self._thumb.draw(canvas, self.position + parent_offset)
 
+    @property
+    def percentage(self):
+        return (self._thumb.position.y - self._thumb.range[0].y) / (self._thumb.range[1].y - self._thumb.range[0].y)
+        
+    def line_up(self):
+        self._thumb.move( Vector(0, -1) )
+    
+    def line_down(self):
+        print("line_down")
+        self._thumb.move( Vector(0, 1) )
+        
     def handle_event(self, event, parent_offset):
         if isinstance(event, MouseMotionEvent):
             pos = event.position - parent_offset - self.position
@@ -80,6 +107,7 @@ class VerticalScrollbar(Container):
                 self.invalidate()
             if self._thumb.dragging:
                 self._thumb.drag(pos)
+                self.do_value_changed()
                 self.invalidate()
         elif isinstance(event, MouseButtonEvent):
             pos = event.position - parent_offset - self.position
@@ -95,3 +123,6 @@ class VerticalScrollbar(Container):
             return True
                     
         super().handle_event(event, parent_offset)
+
+    def do_value_changed(self):
+        self._position_changed.emit(self, self.percentage)

@@ -1,9 +1,9 @@
 from . geometry import Extents
 from . widget import Widget
-from . clickable import Clickable
+from . clickable import *
 from . uielement import Sizeable
 
-class Button(Sizeable, Clickable, Widget):
+class CustomButton(Sizeable, CustomClickable, Widget):
 
     def __init__(self, caption = "Button", **kwargs):
         super().__init__(**kwargs)
@@ -58,3 +58,6 @@ class Button(Sizeable, Clickable, Widget):
             clr = self.face_color
             if clr[3] != 0: canvas.rectangle(x, y, self._ext[0], self._ext[1], clr)
             canvas.draw_text(self.fonthandle, x + self._x, y + self._y, self._caption, self.caption_color)
+
+class Button(ClickedEmitter, CustomButton):
+    pass

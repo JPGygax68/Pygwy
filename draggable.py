@@ -6,16 +6,22 @@ class Draggable(Rectangle):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.hovered = False # FIXME: this is a duplicate if inheriting from Widget -> fix design
         self._dragging = False
 
-    def define_range(self, from_pos, to_pos):
+    @property
+    def range(self):
+        return (self._from_pos, self._to_pos)
+        
+    @range.setter
+    def range(self, points):
         """Defines the range, in both horizontal and vertical directions, that the draggable can move.
         This does NOT take into account the width and height of the rectangle: the restriction applies directly to the origin point."""
         
-        self._from_pos = from_pos
-        self._to_pos   = to_pos
-        self._extents = (to_pos[0] - from_pos[0], to_pos[1] - from_pos[1])
-        
+        self._from_pos = points[0]
+        self._to_pos   = points[1]
+        self._extents = points[1] - points[0]
+    
     @property
     def dragging(self): return self._dragging
     

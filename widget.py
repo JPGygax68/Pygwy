@@ -19,6 +19,10 @@ class Widget(UIElement):
     @property
     def mouseleave(self): return self._mouseleave
     
+    @property
+    def parent(self): return self._parent
+    
+    # FIXME: replace with property or simple member field
     def set_parent(self, parent):
         self._parent = parent
         
