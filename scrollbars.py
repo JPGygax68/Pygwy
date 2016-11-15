@@ -38,18 +38,20 @@ class VerticalScrollbar(Container):
         w, h = self.extents
         self._up_btn.font   = self.root_widget.default_icon_font
         self._down_btn.font = self.root_widget.default_icon_font
-        self._down_btn.minimal_size = Extents(w, w) # make arrow buttons square
-        self._up_btn.minimal_size   = Extents(w, w) # ditto
+        self._down_btn.minimal_size = Extents(w, int(2 * w / 3)) # make arrow buttons square
+        self._up_btn.minimal_size   = Extents(w, int(2 * w / 3)) # ditto
         ext_down = self._down_btn.get_optimal_size()
         ext_up   = self._up_btn  .get_optimal_size()
-        y = ext_down[1]
+        y1 = ext_down[1]
         self._up_btn.position = Point(0, 0)
         self._up_btn.extents  = (self.extents[0], ext_up[1])
         y2 = self.extents[1] - ext_down[1]
         self._down_btn.position = (0, y2)
         self._down_btn.extents  = (w, ext_down[1])
-        self._thumb.set_size( self.extents[0], 10 ) # FIXME: use real thumb height
-        self._thumb.define_range( (0, y), (0, y2 - 10) ) # FIXME: use real thumb height
+        ls = y2 - y1 # "slide" length
+        lt = min(ls, int(ls * self._lengths[0] / self._lengths[1])) if self._lengths[1] > 0 else ls
+        self._thumb.set_size( self.extents[0], lt )
+        self._thumb.define_range( (0, y1), (0, y2 - self._thumb.extents[1]) )
         super().layout() # call layout() on children (buttons)
         
     def init_graphics(self, canvas):
@@ -59,11 +61,11 @@ class VerticalScrollbar(Container):
     def update_view(self):
         self._thumb.relative_position = (0, 0)
         
-    def draw(self, canvas, offset):
+    def draw(self, canvas, parent_offset):
         #print("VerticalScrollbar.draw()")
         # Draw children
-        super().draw(canvas, offset)
-        self._thumb.draw(canvas, (self.position[0] + offset[0], self.position[1] + offset[1]))
+        super().draw(canvas, parent_offset)
+        self._thumb.draw(canvas, self.position + parent_offset)
 
     def handle_event(self, event, parent_offset):
         if isinstance(event, MouseMotionEvent):
