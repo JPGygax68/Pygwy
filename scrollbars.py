@@ -42,7 +42,6 @@ class VerticalScrollbar(Container):
         self._down_btn = ScrollDownButton()
         self.add_child(self._up_btn  )
         self.add_child(self._down_btn)
-        self._slide = Rectangle()
         self._thumb = Thumb()
         #self._down_btn.clicked.subscribe(lambda source: print("source: {}".format(source)))
         self._position_changed = EventEmitter()
@@ -59,17 +58,17 @@ class VerticalScrollbar(Container):
         self._up_btn.minimal_size   = Extents(w, int(2 * w / 3))
         ext_down = self._down_btn.get_optimal_size()
         ext_up   = self._up_btn  .get_optimal_size()
-        y1 = ext_down[1]
+        y1 = ext_down[1] + 1 # leave one pixel blank
         self._up_btn.position = Point(0, 0)
         self._up_btn.extents  = (self.extents[0], ext_up[1])
-        y2 = self.extents[1] - ext_down[1]
-        self._down_btn.position = (0, y2)
+        y2 = self.extents[1] - ext_down[1] - 1
+        self._down_btn.position = (0, y2 + 1)
         self._down_btn.extents  = (w, ext_down[1])
-        self._slide = Rectangle( Point(0, y1), Extents(w, y2 - y1) )
+        self._thumb.rectangle = Rectangle( Point(0, y1), Extents(w, y2 - y1) )
+        print("thumb rectangle: {}, {}".format(self._thumb.rectangle.position, self._thumb.rectangle.extents))
         ls = y2 - y1 # "slide" length
         lt = min(ls, int(ls * self._lengths[0] / self._lengths[1])) if self._lengths[1] > 0 else ls
         self._thumb.set_size( self.extents[0], lt )
-        self._thumb.range = ( Point(0, y1), Point(0, y2 - self._thumb.extents[1]) )
         super().layout() # call layout() on children (buttons)
         
     def init_graphics(self, canvas):
@@ -87,7 +86,7 @@ class VerticalScrollbar(Container):
 
     @property
     def percentage(self):
-        return (self._thumb.position.y - self._thumb.range[0].y) / (self._thumb.range[1].y - self._thumb.range[0].y)
+        return (self._thumb.position.y - self._thumb.rectangle.position.y) / self._thumb.rectangle.extents.h
         
     def line_up(self):
         self._thumb.move( Vector(0, -1) )
@@ -129,7 +128,7 @@ class VerticalScrollbar(Container):
                 if self._thumb.contains(pos):
                     self._thumb.start_dragging(pos)
                     return True
-                elif self._slide.contains(pos):
+                elif self._thumb.rectangle.contains(pos):
                     if pos.y < self._thumb.position.y:
                         self.page_up()
                     else:

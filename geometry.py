@@ -15,6 +15,18 @@ class Point(collections.namedtuple('_Point', 'x y')):
     def __neg__(self):
         return Point( - self[0], - self[1] )
         
+    def constrained(self, start, end):
+        return Point( max(min(self[0], end[0]), start[0]), max(min(self[1], end[1]), start[1]) )
+        
+    #def max(self, other):
+    #    return Point( max(self[0], other[0]), max(self[1], other[1]) )
+        
+    def clip_y(self, y_min, y_max):
+        y = max(self[1], y_min)
+        y = min(y, y_max)
+        self = Point(self[0], y)
+   
+
 class Vector(Point):
     pass
 

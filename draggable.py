@@ -7,31 +7,28 @@ class Draggable(Rectangle):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.hovered = False # FIXME: this is a duplicate if inheriting from Widget -> fix design
+        self._rectangle = Rectangle()
         self._dragging = False
 
     @property
-    def range(self):
-        return (self._from_pos, self._to_pos)
+    def rectangle(self):
+        """The rectangular zone within which the draggable is allowed to move."""
+        return self._rectangle
         
-    @range.setter
-    def range(self, points):
-        """Defines the range, in both horizontal and vertical directions, that the draggable can move.
-        This does NOT take into account the width and height of the rectangle: the restriction applies directly to the origin point."""
+    @rectangle.setter
+    def rectangle(self, r):
+        self._rectangle = r
         
-        self._from_pos = points[0]
-        self._to_pos   = points[1]
-        self._extents = points[1] - points[0]
-    
     @property
     def dragging(self): return self._dragging
     
     @property
     def relative_position(self):
-        return self.position - self._from_pos
+        return self.position - self._rectangle.position
         
     @relative_position.setter
     def relative_position(self, pos):
-        self.position = (self._from_pos[0] + pos[0], self._from_pos[1] + pos[1])
+        self.position = self._rectangle.position + pos
         
     def start_dragging(self, ptrpos):
         """ptrpos:  pointer position when the dragging starts (independent from the position of the Draggable)"""
@@ -42,6 +39,7 @@ class Draggable(Rectangle):
         print("started dragging")
         
     def drag(self, ptrpos):
+        print("starting_pos: {}, ptrpos: {}, grab_pos: {}".format(self._starting_pos, ptrpos, self._grab_pos))
         self._move_to( self._starting_pos + ptrpos - self._grab_pos )
         
     def stop_dragging(self):
@@ -52,4 +50,6 @@ class Draggable(Rectangle):
         self._move_to(self.position + vec)
         
     def _move_to(self, pos):
-        self.position = Point(max(self._from_pos[0], min(self._to_pos[0], pos[0])), max(self._from_pos[1], min(self._to_pos[1], pos[1])))
+        pos = pos.constrained(self.rectangle.position, self.rectangle.position + self.rectangle.extents - self.extents)
+        print("pos constrained: {}".format(pos))
+        self.position = pos
