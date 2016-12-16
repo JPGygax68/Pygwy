@@ -13,15 +13,15 @@ class CustomButton(Sizeable, CustomClickable, Widget):
         
     def get_optimal_size(self):
         cbox = self.font.compute_control_box(self._caption)
-        # FIXME: for now, we just add a 1 pixel border, but this should be injected by the box model
-        return max( Extents(cbox.width + 2, cbox.height + 2), self.minimal_size )
+        # FIXME: for now, we just add a fixed-width border, but this should be injected by the box model
+        return max( Extents(cbox.width + 6, cbox.height + 6), self.minimal_size )
         
     def layout(self):
         print("self: {}".format(self))
         cbox = self.font.compute_control_box(self._caption)
         # FIXME: for now, we just center the text, both horizontally and vertically
-        self._x = (self.extents[0] - cbox.width ) // 2 - cbox.x_min
-        self._y = (self.extents[1] - cbox.height) // 2 + cbox.y_max
+        self._x = (self.extents.w - cbox.width ) // 2 - cbox.x_min
+        self._y = (self.extents.h - cbox.height) // 2 + cbox.y_max
         
     def update_view(self):
         # Button does not have any View state, so there is nothing to do here.
@@ -30,9 +30,9 @@ class CustomButton(Sizeable, CustomClickable, Widget):
     @property
     def face_color(self):
         if self.hovered:
-            return (0.6, 0.6, 0.6, 1)
+            return (0.7, 0.7, 0.7, 1)
         else:
-            return (0.5, 0.5, 0.5, 1)
+            return (0.6, 0.6, 0.6, 1)
         
     @property
     def caption_color(self):

@@ -2,7 +2,7 @@ from . events import *
 from . eventemitter import *
 from . geometry import Rectangle
 
-class CustomClickable(Rectangle):
+class CustomClickable(Rectangle): # TODO: use even more generic geometry class ?
 
     #def __init__(self, **kwargs):
     #    super().__init__(**kwargs)

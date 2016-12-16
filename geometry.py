@@ -32,11 +32,27 @@ class Vector(Point):
 
 class Extents(collections.namedtuple('_Extents', 'w h')):
     
-    def min(self, other):
-        return Extents( min(self[0], other[0]), min(self[1], other[1]) )
+    @property
+    def w(self): return self[0]
+    
+    @property
+    def h(self): return self[1]
+    
+    def __or__(self, other):
+        """Arithmetic OR operator: returns the smallests extents that can fit either of the operands."""
         
-    def max(self, other):
         return Extents( max(self[0], other[0]), max(self[1], other[1]) )
+        
+    def __and__(self, other):
+        """Arithmetic AND operator: returns the largets extents that will fit into either of the operands."""
+
+        return Extents( min(self[0], other[0]), min(self[1], other[1]) )
+    
+    #def min(self, other):
+    #    return Extents( min(self[0], other[0]), min(self[1], other[1]) )
+        
+    #def max(self, other):
+    #    return Extents( max(self[0], other[0]), max(self[1], other[1]) )
     
 class Rectangle(object):
     

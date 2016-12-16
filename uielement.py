@@ -8,6 +8,10 @@ class UIElement(Rectangle):
 
 class Sizeable(UIElement):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._min_size = Extents(0, 0)
+        
     @property
     def minimal_size(self):
         return self._min_size

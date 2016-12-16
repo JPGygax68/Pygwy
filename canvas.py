@@ -1,3 +1,5 @@
+# FIXME: this is the OpenGL implementation of the Canvas interface and therefore belongs into its own module; also, a separate module with the interface needs to be created (and used here!)
+
 import os
 import OpenGL
 from OpenGL.GL import *

@@ -5,6 +5,9 @@ from . uielement import UIElement
 
 class Widget(UIElement):
     
+    # TODO: define an informative __str__()
+    # TODO: "name" property with unique (? within parent or whole hierarchy ?) value and automatic default value 
+    
     def __init__(self, font = None, **kwargs):
         super().__init__(**kwargs)
         self._font = font
