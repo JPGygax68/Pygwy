@@ -11,29 +11,27 @@ from Pygwy.sdl import wrap_event
 class Application(object): # TODO: derive from interface defined in Pygwy
 
     def __init__(self):
+        
+        self._main_window = None
+
+    def start(self):
+        """Hook where windows should be created."""
         pass
         
-    @property
-    def root_widget(self): return self._root_widget
-    
-    def start(self):
+    # TODO: replace with support for multiple windows
 
-        self._open_main_window()
+    def open_main_window(self, root_widget = None):
+
+        if self._main_window is None: self._create_main_window(root_widget)
         
-        #self.root_widget.layout()
-        #self.root_widget.set_extents(self.window.size) # TODO: support resizing!
-        self.root_widget.update_view()      
-        self.root_widget.init_graphics()
+        self._root_widget.update_view()      
+        self._root_widget.init_graphics()
 
-        self.window.show()
+        self._main_window.show()
 
     def cleanup(self):
         pass # FIXME
 
-    def define_gui(self, root_widget):
-        """This is the callback that allows derived classes to define their GUI. Note that the OpenGL context is not yet active at this point."""
-        pass
-        
     def init_gl(self):
         """This method can be overridden by derived classes to do initialization when the OpenGL context has become available."""
         # FIXME: this should not belong to the application but to each window, as they could have different OpenGL contexts
@@ -68,8 +66,9 @@ class Application(object): # TODO: derive from interface defined in Pygwy
                         running = False
                         break
                 else:
-                    self.root_widget.handle_event( wrap_event(event) )
-                    #if root_widget.must_redraw:
+                    # TODO: multiple windows -> multiple root widgets
+                    self._root_widget.handle_event( wrap_event(event) )
+                    #if _root_widget.must_redraw:
                     #    print("must_redraw")
                     #    evt = sdl2.SDL_Event()
                     #    evt.type = redraw_gui_event_id
@@ -81,7 +80,8 @@ class Application(object): # TODO: derive from interface defined in Pygwy
         self.cleanup_gl() # FIXME: belongs to window
         self.cleanup()
             
-    def _open_main_window(self):
+    # FIXME: replace with support for multiple windows    
+    def _create_main_window(self, root_widget):
         # Create the window, prepare it for OpenGL
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_DOUBLEBUFFER,  0) # Not useful in Windows 10
         sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_DEPTH_SIZE  , 24)
@@ -89,14 +89,12 @@ class Application(object): # TODO: derive from interface defined in Pygwy
         #sdl2.SDL_GL_SetAttribute(sdl2.SDL_GL_MULTISAMPLESAMPLES,16);
         #sdl2.SDL_GL_SetSwapInterval(1)
 
-        self._root_widget = RootWidget()        
-        self.define_gui(self._root_widget)
-        
-        self.window = sdl2.ext.Window("MSTSOGL Test App", size=(800, 600), 
+        self._root_widget = root_widget        
+        self._main_window = sdl2.ext.Window("MSTSOGL Test App", size=(800, 600), 
             flags=sdl2.SDL_WINDOW_OPENGL|sdl2.SDL_WINDOW_FULLSCREEN|sdl2.SDL_WINDOW_MAXIMIZED)
 
-        self.glctx = sdl2.SDL_GL_CreateContext(self.window.window)
-        size = self.window.size
+        self.glctx = sdl2.SDL_GL_CreateContext(self._main_window.window)
+        size = self._main_window.size
         glViewport(0, 0, size[0], size[1])
         
         self.init_gl()

@@ -12,7 +12,7 @@ sys.path.insert(0, path)
 
 from Pygwy import RootWidget, Label, Button, VerticalScrollbar, Container
 
-from application import Application # FIXME: make into real module, either of Pygwy or Pygwy platform module
+from Pygwy.testapp.application import Application # FIXME: make into real module, either of Pygwy or Pygwy platform module
 
 # FIXME: use resources
 thisdir = os.path.dirname(os.path.realpath(__file__))
@@ -34,6 +34,8 @@ class MyLayouter(Container):
         for child in self._children:
             child.extents = child.get_optimal_size() | self.minimal_element_size
             minsz = Extents(minsz.w + child.extents.w, max(minsz.h, child.extents.h))
+            
+        return minsz
     
     def layout(self):
         
@@ -56,19 +58,32 @@ class MyContainer(MyLayouter, Container):
         
         super().draw(canvas, offset)
         
-class MenuBar(Container):
+class MenuBar(MyLayouter, Container): # TODO: derive from base class "Menu"
     
+    def add_submenu(self, text):        
+        sm = Button(caption = text)
+        self.add_child(sm)
+        return sm
+
     def layout(self):
-        self.position = Point(0, 0)
-        print("MenuBar.layout(), parent extents: {}, parent: {}".format(self.parent.extents, self.parent))
-        self.extents = Extents(self.parent.extents.w, 20) # TODO: compute height from direct children
+        super().layout()
         
     def draw(self, canvas, offset):        
         pos = offset + self.position
-        #print("Menubar extents: {}".format(self.extents))
         canvas.rectangle(pos.x, pos.y, self.extents.w, self.extents.h, [0.7, 0.7, 0.7, 1])
         super().draw(canvas, offset)
-        
+
+# RootWidget specialization
+
+class MyRootWidget(RootWidget):
+    
+    # TODO: inherit this from a layouter class [not created yet]
+    def layout(self):
+        # TODO: quick and dirty: we only position the first child, assumed to be the menu
+        self._children[0].position = Point(0, 0)
+        self._children[0].extents = Extents(self.extents.w, self._children[0].get_optimal_size().h)
+        super().layout()
+    
 # Application class 
 
 class MyApp(Application):
@@ -76,10 +91,14 @@ class MyApp(Application):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def define_gui(self, root_widget):
-        
+    def start(self):
+    
+        root_widget = MyRootWidget()
+
         menubar = MenuBar()
         root_widget.add_child(menubar)
+        file = menubar.add_submenu("File")
+        help = menubar.add_submenu("Help")
         
         cont1 = MyContainer()
         cont1.position = ( 50,  50)
@@ -102,7 +121,9 @@ class MyApp(Application):
         #my_scrollbar.extents = (30, 200)
         #my_scrollbar.position_changed.subscribe(lambda source, value: print("new value: {}".format(value)))
         #root_widget.add_child(my_scrollbar)
-
+        
+        self.open_main_window(root_widget)
+        
     def _generic_click_handler(self, widget):
         print("Click event sent from {}".format(widget))
         
@@ -118,7 +139,8 @@ class MyApp(Application):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         # Render the GUI
-        self.root_widget.render()
+        # TODO: dirty, temporary: accessing protected, and itself temporary, _root_widget member
+        self._root_widget.render()
 
         glFlush()
         

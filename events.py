@@ -1,10 +1,11 @@
 from . geometry import Point, Extents
 
+# TODO: more pythonic to define a property that returns the event type, rather than using isinstance() ?
+
 class Event:
     pass
     
-class KeyboardEvent:
-    
+class KeyboardEvent:    
     PRESSED = 0
     RELEASED = 1
     
@@ -40,7 +41,8 @@ class WindowEvent(Event):
 
     @property
     def size_changed(self): raise NotImplementedError("WindowEvent.size_changed")
-    
+
+    # TODO: map "resized" to "size_change" (what is the difference in SDL2 ?)
     @property
     def resized(self): raise NotImplementedError("WindowEvent.resized")
         
