@@ -44,14 +44,29 @@ class MouseWheelWrapper(MouseWrapper, MouseWheelEvent):
     @property
     def vector(self):
         return Vector(self.event.wheel.x, self.event.wheel.y)
+
+class WindowEventWrapper(EventWrapper, WindowEvent):
+    
+    @property
+    def size_changed(self): 
+        return self.event.window.event == sdl2.SDL_WINDOWEVENT_SIZE_CHANGED
         
+    @property
+    def resized(self): 
+        return self.event.window.event == sdl2.SDL_WINDOWEVENT_RESIZED
+
+    @property
+    def size(self): 
+        return Extents(self.event.window.data1, self.event.window.data2)
+    
 _wrapper_map = {
     sdl2.SDL_KEYDOWN: KeyboardWrapper,
     sdl2.SDL_KEYUP: KeyboardWrapper,
     sdl2.SDL_MOUSEMOTION: MouseMotionWrapper,
     sdl2.SDL_MOUSEBUTTONDOWN: MouseButtonWrapper,
     sdl2.SDL_MOUSEBUTTONUP: MouseButtonWrapper,
-    sdl2.SDL_MOUSEWHEEL: MouseWheelWrapper
+    sdl2.SDL_MOUSEWHEEL: MouseWheelWrapper,
+    sdl2.SDL_WINDOWEVENT: WindowEventWrapper
 }    
 
 def wrap_event(event):

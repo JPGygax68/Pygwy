@@ -1,3 +1,5 @@
+from . geometry import Point, Extents
+
 class Event:
     pass
     
@@ -33,3 +35,14 @@ class MouseWheelEvent(MouseEvent):
 
     @property
     def vector(self): raise NotImplementedError("MouseWheelEvent.vector")
+
+class WindowEvent(Event):
+
+    @property
+    def size_changed(self): raise NotImplementedError("WindowEvent.size_changed")
+    
+    @property
+    def resized(self): raise NotImplementedError("WindowEvent.resized")
+        
+    @property
+    def size(self): raise NotImplementedError("WindowEvent.size")

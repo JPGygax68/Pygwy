@@ -4,6 +4,7 @@ from . fontrast import *
 from . canvas import Canvas
 from . container import Container
 from . geometry import Point
+from . events import *
 
 # FIXME: use resources
 thisdir = os.path.dirname(os.path.realpath(__file__))
@@ -56,14 +57,21 @@ class RootWidget(Container):
     def set_extents(self, w, *h):
         """Set the size of the viewport the root widget will be responsible for,
         either as two integers or a tuple of two integers."""
-        self._extents = (w, *h) if h else w
-        self._canvas.set_extents(self._extents)
+        self.extents = (w, *h) if h else w
+        self._canvas.set_extents(self.extents) # TODO: that shouldn't be necessary
         #print("Extents: {}".format(self._extents))
 
     def handle_event(self, event):
-        """Inject the specified event into the widget hierarchy. Returns True if the event was
-        consumed, False otherwise."""        
+        """Handles window-level events, injects the rest into the widget hierarchy. Returns True if the event was consumed, False otherwise."""        
         #print("RootWidget.handle_event(): {}".format(event))
+        if isinstance(event, WindowEvent):
+            print("window event: {}".format(event))
+            if event.size_changed or event.resized:
+                print("resized/size_changed: {}".format(event.size))
+                self.set_extents(event.size)
+                self.layout()
+                return True
+        
         return super().handle_event(event, Point(0, 0))
         
     def render(self):

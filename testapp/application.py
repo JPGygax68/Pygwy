@@ -20,8 +20,8 @@ class Application(object): # TODO: derive from interface defined in Pygwy
 
         self._open_main_window()
         
-        self.root_widget.layout()
-        self.root_widget.set_extents(self.window.size) # TODO: support resizing!
+        #self.root_widget.layout()
+        #self.root_widget.set_extents(self.window.size) # TODO: support resizing!
         self.root_widget.update_view()      
         self.root_widget.init_graphics()
 
@@ -63,10 +63,11 @@ class Application(object): # TODO: derive from interface defined in Pygwy
                 if event.type == sdl2.SDL_QUIT:
                     running = False
                     break
-                else:
-                    if event.type == sdl2.SDL_KEYDOWN and event.key.keysym.sym == sdl2.SDLK_ESCAPE:
+                elif event.type == sdl2.SDL_KEYDOWN:
+                    if event.key.keysym.sym == sdl2.SDLK_ESCAPE:
                         running = False
-                        break         
+                        break
+                else:
                     self.root_widget.handle_event( wrap_event(event) )
                     #if root_widget.must_redraw:
                     #    print("must_redraw")

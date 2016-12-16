@@ -56,6 +56,19 @@ class MyContainer(MyLayouter, Container):
         
         super().draw(canvas, offset)
         
+class MenuBar(Container):
+    
+    def layout(self):
+        self.position = Point(0, 0)
+        print("MenuBar.layout(), parent extents: {}, parent: {}".format(self.parent.extents, self.parent))
+        self.extents = Extents(self.parent.extents.w, 20) # TODO: compute height from direct children
+        
+    def draw(self, canvas, offset):        
+        pos = offset + self.position
+        #print("Menubar extents: {}".format(self.extents))
+        canvas.rectangle(pos.x, pos.y, self.extents.w, self.extents.h, [0.7, 0.7, 0.7, 1])
+        super().draw(canvas, offset)
+        
 # Application class 
 
 class MyApp(Application):
@@ -64,6 +77,9 @@ class MyApp(Application):
         super().__init__(*args, **kwargs)
 
     def define_gui(self, root_widget):
+        
+        menubar = MenuBar()
+        root_widget.add_child(menubar)
         
         cont1 = MyContainer()
         cont1.position = ( 50,  50)
