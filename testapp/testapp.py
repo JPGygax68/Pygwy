@@ -10,16 +10,16 @@ path = os.path.dirname(path)
 path = os.path.dirname(path)
 sys.path.insert(0, path)
 
-from Pygwy import RootWidget, Label, Button, VerticalScrollbar, Container
+from pygwy import RootWidget, Label, Button, VerticalScrollbar, Container
 
-from Pygwy.testapp.application import Application # FIXME: make into real module, either of Pygwy or Pygwy platform module
+from pygwy.testapp.application import Application # FIXME: make into real module, either of Pygwy or Pygwy platform module
 
 # FIXME: use resources
 thisdir = os.path.dirname(os.path.realpath(__file__))
 
 # Experimental code
 
-from Pygwy.geometry import Point, Extents
+from pygwy.geometry import Point, Extents
 
 class MyLayouter(Container):
 

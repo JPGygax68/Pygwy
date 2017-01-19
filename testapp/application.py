@@ -5,8 +5,8 @@ import atexit
 import OpenGL
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from Pygwy import RootWidget
-from Pygwy.sdl import wrap_event
+from pygwy import RootWidget
+from pygwy.sdl import wrap_event
 
 class Application(object): # TODO: derive from interface defined in Pygwy
 
