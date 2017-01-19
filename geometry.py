@@ -30,23 +30,28 @@ class Point(collections.namedtuple('_Point', 'x y')):
 class Vector(Point):
     pass
 
-class Extents(collections.namedtuple('_Extents', 'w h')):
-    
-    @property
-    def w(self): return self[0]
-    
-    @property
-    def h(self): return self[1]
-    
+class Extents(object):
+
+    def __init__(self, w=None, h=None):
+        if w is None:
+            self.w = 0
+            self.h = 0
+        else:
+            if h is None:
+                self.w, self.h = w
+            else:
+                self.w = w
+                self.h = h
+
     def __or__(self, other):
         """Arithmetic OR operator: returns the smallests extents that can fit either of the operands."""
         
-        return Extents( max(self[0], other[0]), max(self[1], other[1]) )
+        return Extents( max(self.x, other.x), max(self.y, other.y) )
         
     def __and__(self, other):
         """Arithmetic AND operator: returns the largets extents that will fit into either of the operands."""
 
-        return Extents( min(self[0], other[0]), min(self[1], other[1]) )
+        return Extents( min(self.x, other.x), min(self.y, other.y) )
     
     #def min(self, other):
     #    return Extents( min(self[0], other[0]), min(self[1], other[1]) )
@@ -75,7 +80,15 @@ class Rectangle(object):
         
     @extents.setter
     def extents(self, w, *h):
-        self._ext = Extents(w, *h) if h else Extents(w[0], w[1])
+        if type(w) is tuple:
+            self._ext.w = w[0]
+            self._ext.h = w[1]
+        elif type(w) is Extents:
+            assert not h
+            self._ext = w
+        else:
+            assert h
+            self._ext = Extents(w, *h)
             
     @property
     def width(self):
@@ -86,6 +99,27 @@ class Rectangle(object):
         return self.extents.h
         
     def contains(self, point):
-        return (point[0] >= self._pos[0] and point[0] < self._pos[0] + self._ext[0]
-            and point[1] >= self._pos[1] and point[1] < self._pos[1] + self._ext[1])
+        return (point.x >= self._pos.x and point.x < self._pos.x + self._ext.w
+            and point.y >= self._pos.y and point.y < self._pos.y + self._ext.h)
             
+
+class BoundingBox(Extents):
+    """A BoundingBox is an extension of the Extents class. It splits the height into two components "ascender" and
+    "descender", so that the box can be correctly positioned on a typographical baseline.
+    """
+
+    def __init__(self, width, ascender_or_height, descender=None):
+        super().__init__()
+        self.w = width
+        if descender is None:
+            self.h = ascender_or_height
+            self.descender = self.h // 2
+        else:
+            self.h = ascender_or_height + descender
+            self.descender = self.h - ascender_or_height
+
+    @property
+    def ascender(self):
+        return self.h - self.descender
+
+

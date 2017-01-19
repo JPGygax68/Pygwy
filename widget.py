@@ -1,9 +1,8 @@
 from events import *
 from geometry import *
 from eventemitter import *
-from uielement import UIElement
 
-class Widget(UIElement):
+class Widget(Rectangle):
     
     # TODO: define an informative __str__()
     # TODO: "name" property with unique (? within parent or whole hierarchy ?) value and automatic default value 
@@ -52,10 +51,9 @@ class Widget(UIElement):
     def fonthandle(self):
         return self._fonthandle
 
-    def get_optimal_size(self):
-        raise NotImplementedError("Widget descendents MUST implement the get_optimal_size() method!")
-        # TODO: use a dummy implementation returning (0, 0) so that chaining can be used ?
-        
+    def get_bounding_box(self) -> BoundingBox:
+        raise NotImplementedError("Widget descendents MUST implement get_bounding_box() query")
+
     def layout(self):
         raise NotImplementedError("Widget descendents MUST implement the layout method!")
         # TODO: is the above necessarily true ?

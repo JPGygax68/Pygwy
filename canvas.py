@@ -37,7 +37,7 @@ class Canvas:
             if len(self._canvas._clipper_stack) == 0:
                 glEnable(GL_SCISSOR_TEST) 
             self._canvas._clipper_stack.append( self )
-            glScissor(self._x, self._canvas.extents[1] - self._y - self._h, self._w, self._h)
+            glScissor(self._x, self._canvas.extents.h - self._y - self._h, self._w, self._h)
             
         def __exit__(self, type, value, traceback):
             #print("Leaving clipper")
@@ -46,7 +46,7 @@ class Canvas:
                 glDisable(GL_SCISSOR_TEST)
             else:
                 cl = self._canvas._clipper_stack[-1]
-                glScissor(cl._x, self._canvas.extents[1] - cl._y, cl._w, cl._h)
+                glScissor(cl._x, self._canvas.extents.h - cl._y, cl._w, cl._h)
             
     def __init__(self):
         self._font_cache = {}
@@ -255,8 +255,8 @@ class Canvas:
         
         glUseProgram(self.program)
         #print("Uniforms: {}".format(self.uniforms))
-        glUniform1i(self.uniforms.get('vp_width'), self.extents[0])
-        glUniform1i(self.uniforms.get('vp_height'), self.extents[1])
+        glUniform1i(self.uniforms.get('vp_width') , self.extents.w)
+        glUniform1i(self.uniforms.get('vp_height'), self.extents.h)
         glUniform4f(self.uniforms.get('color'), 0, 0, 0, 1) # 1, numpy.array((0, 0, 0, 1)))
         glUniform1i(self.uniforms.get('font_pixels'), 0) # texture unit 0 for font pixels
         glUniform1i(self.uniforms.get('glyph_descriptors'), 1) # texture unit 1 for glyph descriptors

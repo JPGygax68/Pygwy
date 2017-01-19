@@ -15,6 +15,7 @@ from label import Label
 from button import Button
 from scrollbars import VerticalScrollbar
 from container import Container
+from geometry import BoundingBox
 
 from application import Application # FIXME: make into real module, either of Pygwy or Pygwy platform module
 
@@ -25,34 +26,41 @@ thisdir = os.path.dirname(os.path.realpath(__file__))
 
 from geometry import Point, Extents
 
-class MyLayouter(Container):
+class MenuBarLayouter(Container):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.spacing = 5
-        self.minimal_element_size = Extents(0, 0)
-        
-    def get_optimal_size(self):
+        #self.minimal_element_size = Extents(0, 0)
 
-        minsz = Extents(0, 0)
-        for child in self._children:
-            child.extents = child.get_optimal_size() | self.minimal_element_size
-            minsz = Extents(minsz.w + child.extents.w, max(minsz.h, child.extents.h))
-            
-        return minsz
-    
+    def get_bounding_box(self):
+
+        w = 0 # TODO: take border into account
+        max_ascender = max_descender = -10000
+        for i, child in enumerate(self._children):
+            bbox = child.get_bounding_box()
+            if bbox.ascender  > max_ascender: max_ascender = bbox.ascender
+            if bbox.descender > max_descender: max_descender = bbox.descender
+            if i > 0: w += self.spacing
+            w += bbox.w
+
+        return BoundingBox(w, max_ascender, max_descender)
+
     def layout(self):
-        
+
+        bbox = self.get_bounding_box()
+        y_base = (self.extents.h - bbox.h) // 2 + bbox.ascender
         x = 0 # TODO: start at border
         for child in self._children:
-            child.extents = child.get_optimal_size() | self.minimal_element_size
-            print("child.extents: {}".format(child.extents))
-            child.position = Point(x, (self.extents.h - child.extents.h) // 2)
+            #child.extents = child.get_optimal_size() | self.minimal_element_size
+            cbb = child.get_bounding_box()
+            child.position = Point(x, y_base - bbox.ascender)
+            child.extents = Extents(cbb.w, cbb.h)
             x += child.extents.w + self.spacing
             
         super().layout() # will call layout() on children
         
-class MyContainer(MyLayouter, Container):
+class MyContainer(MenuBarLayouter, Container):
     
     def draw(self, canvas, offset):
         #print("MyContainer.draw()")
@@ -64,7 +72,7 @@ class MyContainer(MyLayouter, Container):
 
 # TODO: this class is in early development, move into its own module as soon as it is ready for that
 
-class MenuBar(MyLayouter, Container): # TODO: derive from base class "Menu"
+class MenuBar(MenuBarLayouter, Container): # TODO: derive from base class "Menu"
     
     def add_submenu(self, text):        
         sm = Button(caption = text)
@@ -87,7 +95,7 @@ class MyRootWidget(RootWidget):
     def layout(self):
         # TODO: quick and dirty: we only position the first child, assumed to be the menu
         self._children[0].position = Point(0, 0)
-        self._children[0].extents = Extents(self.extents.w, self._children[0].get_optimal_size().h)
+        self._children[0].extents = Extents(self.extents.w, self._children[0].get_bounding_box().h)
         super().layout()
     
 # Application class 

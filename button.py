@@ -1,9 +1,9 @@
 from geometry import Extents
 from widget import Widget
 from clickable import *
-from uielement import Sizeable
+from geometry import BoundingBox
 
-class CustomButton(Sizeable, CustomClickable, Widget):
+class CustomButton(CustomClickable, Widget):
 
     def __init__(self, caption = "Button", **kwargs):
         super().__init__(**kwargs)
@@ -11,11 +11,11 @@ class CustomButton(Sizeable, CustomClickable, Widget):
         #self._face_clr_ = (0.5, 0.5, 0.5, 1)
         self._caption = caption
         
-    def get_optimal_size(self):
+    def get_bounding_box(self):
         cbox = self.font.compute_control_box(self._caption)
         # FIXME: for now, we just add a fixed-width border, but this should be injected by the box model
-        return max( Extents(cbox.width + 6, cbox.height + 6), self.minimal_size )
-        
+        return BoundingBox(cbox.width + 6, cbox.y_max + 3, - cbox.y_min + 3)
+
     def layout(self):
         print("self: {}".format(self))
         cbox = self.font.compute_control_box(self._caption)
@@ -54,9 +54,9 @@ class CustomButton(Sizeable, CustomClickable, Widget):
 
     def draw(self, canvas, offset):
         x, y = offset + self.position
-        with canvas.clip(x, y, self._ext[0], self._ext[1]):
+        with canvas.clip(x, y, self._ext.w, self._ext.h):
             clr = self.face_color
-            if clr[3] != 0: canvas.rectangle(x, y, self._ext[0], self._ext[1], clr)
+            if clr[3] != 0: canvas.rectangle(x, y, self._ext.w, self._ext.h, clr)
             canvas.draw_text(self.fonthandle, x + self._x, y + self._y, self._caption, self.caption_color)
 
 class Button(ClickedEmitter, CustomButton):
