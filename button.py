@@ -1,7 +1,7 @@
-from . geometry import Extents
-from . widget import Widget
-from . clickable import *
-from . uielement import Sizeable
+from geometry import Extents
+from widget import Widget
+from clickable import *
+from uielement import Sizeable
 
 class CustomButton(Sizeable, CustomClickable, Widget):
 

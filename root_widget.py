@@ -1,10 +1,10 @@
 import os
 
-from . fontrast import *
-from . canvas import Canvas
-from . container import Container
-from . geometry import Point
-from . events import *
+from fontrast import *
+from canvas import Canvas
+from container import Container
+from geometry import Point
+from events import *
 
 # FIXME: use resources
 thisdir = os.path.dirname(os.path.realpath(__file__))

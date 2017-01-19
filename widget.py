@@ -1,7 +1,7 @@
-from . events import *
-from . geometry import *
-from . eventemitter import *
-from . uielement import UIElement
+from events import *
+from geometry import *
+from eventemitter import *
+from uielement import UIElement
 
 class Widget(UIElement):
     

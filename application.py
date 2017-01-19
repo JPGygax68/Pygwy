@@ -5,8 +5,8 @@ import atexit
 import OpenGL
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from pygwy import RootWidget
-from pygwy.sdl import wrap_event
+from root_widget import RootWidget
+from sdl import wrap_event
 
 class Application(object): # TODO: derive from interface defined in Pygwy
 
@@ -109,4 +109,3 @@ class Application(object): # TODO: derive from interface defined in Pygwy
     redraw_gui_event_id = sdl2.SDL_RegisterEvents(1)
 
     atexit.register( _cleanup_all )
-    

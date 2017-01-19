@@ -1,6 +1,6 @@
-from . events import *
-from . eventemitter import *
-from . geometry import Rectangle
+from events import *
+from eventemitter import *
+from geometry import Rectangle
 
 class CustomClickable(Rectangle): # TODO: use even more generic geometry class ?
 

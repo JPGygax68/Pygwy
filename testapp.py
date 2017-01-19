@@ -10,16 +10,20 @@ path = os.path.dirname(path)
 path = os.path.dirname(path)
 sys.path.insert(0, path)
 
-from pygwy import RootWidget, Label, Button, VerticalScrollbar, Container
+from root_widget import RootWidget
+from label import Label
+from button import Button
+from scrollbars import VerticalScrollbar
+from container import Container
 
-from pygwy.testapp.application import Application # FIXME: make into real module, either of Pygwy or Pygwy platform module
+from application import Application # FIXME: make into real module, either of Pygwy or Pygwy platform module
 
 # FIXME: use resources
 thisdir = os.path.dirname(os.path.realpath(__file__))
 
 # Experimental code
 
-from pygwy.geometry import Point, Extents
+from geometry import Point, Extents
 
 class MyLayouter(Container):
 
@@ -57,7 +61,9 @@ class MyContainer(MyLayouter, Container):
         canvas.rectangle(pos.x, pos.y, self.extents.w, self.extents.h, [1, 1, 0.2, 1])
         
         super().draw(canvas, offset)
-        
+
+# TODO: this class is in early development, move into its own module as soon as it is ready for that
+
 class MenuBar(MyLayouter, Container): # TODO: derive from base class "Menu"
     
     def add_submenu(self, text):        

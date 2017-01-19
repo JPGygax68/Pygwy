@@ -1,6 +1,6 @@
 from numpy import *
 
-from . widget import Widget
+from widget import Widget
 
 class Label(Widget):
 

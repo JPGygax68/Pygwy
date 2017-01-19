@@ -1,4 +1,4 @@
-from . geometry import Point, Extents
+from geometry import Point, Extents
 
 # TODO: more pythonic to define a property that returns the event type, rather than using isinstance() ?
 

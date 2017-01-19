@@ -1,6 +1,6 @@
-from . widget import Widget
-from . geometry import Point
-from . events import *
+from widget import Widget
+from geometry import Point
+from events import *
 
 class Container(Widget):
 

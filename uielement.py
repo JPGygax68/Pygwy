@@ -1,4 +1,4 @@
-from . geometry import Rectangle, Extents
+from geometry import Rectangle, Extents
 
 class UIElement(Rectangle):
 

@@ -1,4 +1,4 @@
-from . geometry import Rectangle, Point
+from geometry import Rectangle, Point
 
 class Draggable(Rectangle):
     

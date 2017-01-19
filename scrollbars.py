@@ -1,10 +1,10 @@
-from . container import Container
-from . root_widget import RootWidget
-from . button import CustomButton
-from . geometry import *
-from . events import *
-from . draggable import Draggable
-from . eventemitter import *
+from container import Container
+from root_widget import RootWidget
+from button import CustomButton
+from geometry import *
+from events import *
+from draggable import Draggable
+from eventemitter import *
 
 class Thumb(Draggable):
 

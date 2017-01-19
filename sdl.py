@@ -1,6 +1,6 @@
 import sdl2
-from . events import *
-from . geometry import Point, Vector
+from events import *
+from geometry import Point, Vector
 
 class EventWrapper(Event):
     def __init__(self, event):
