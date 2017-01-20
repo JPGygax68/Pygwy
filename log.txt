@@ -1,0 +1,5 @@
+2017-01-20
+==========
+
+Introduced new class BoundingBox last night, and replaced get_minimal_size() query with get_bounding_box().
+BoundingBox divides the height among an ascender and a descender, thus supporting alignment on a baseline.

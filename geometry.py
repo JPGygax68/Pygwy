@@ -4,6 +4,8 @@ import collections
 #Point   = collections.namedtuple('Point', 'x y')
 #Extents = collections.namedtuple('Extents', 'w h')
 
+# TODO: replace namedtuple implementation with normal class, optimize using __slots__
+
 class Point(collections.namedtuple('_Point', 'x y')):
 
     def __add__(self, delta):
@@ -31,6 +33,8 @@ class Vector(Point):
     pass
 
 class Extents(object):
+
+    # TODO: optimize using __slots__
 
     def __init__(self, w=None, h=None):
         if w is None:
